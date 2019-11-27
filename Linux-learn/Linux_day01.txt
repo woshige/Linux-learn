@@ -1,0 +1,94 @@
+ssh协议 secure shell
+1、ss -tnl （如果22，表示sshd服务开启）
+                查看基于tcp协议的22号端口
+2、ifconfig 查看本机的ip地址 
+    ip addr list 
+3、iptables -L -n
+    iptables -F 清理规则链
+   systemctl stop firewalld.service  7
+   service iptable stop 6代表的是暂时的有效
+   systemctl disable firewalld.service 6 永久的关闭
+4、查看所用的shell的类型 
+    echo $SHELL
+5、终端设备 terminal
+多用户（端口，用户接口程序也就是进程）、多任务
+物理终端 console 直接的接在操作系统，只在系统的启动的时候使用，一旦启动完成之后看见的
+是虚拟终端
+虚拟终端 ctrl + alt + F[1-6]
+图形终端 ctrl + alt + F[7] centos6
+对于centos7来说的是，在哪个虚拟终端启动，就位于哪个虚拟终端
+tty 查看当前的终端的设备
+6、文件是什么？文件的组织形式？
+目录：路径映射
+文件：存储空间的存储的一段数据流，对数据可以做到按名存取。
+文件系统：层级结构
+
+
+
+-------------------------------
+现代计算机设备的组成部分
+   运算器、控制器（控制部件进行协调）、存储器、输入设备、输出设备
+   cpu ：运算器+控制器
+   数据线路（负责数据之间的交换，比如运算器和存储器之间的传输）bus：
+                           数据总线：
+                           控制总线：
+                           地址总线：寻址（对应在存储器上的单元）
+   存储器：memory 编址存储单元
+   cpu：cpu和存储器的传输通过电路信号的0和1（时钟震荡）来传输。但是cpu的工作的频率很高，
+   但是内存的工作频率与cpu的差距较大，所以cpu与内存之间增加了cpu缓存，与几乎接近于cpu
+   的速度进行工作。
+   IO设备：是内部和外部进行交互（比如内存是一个易失性设备、不同计算机的通信，磁盘、网卡都称为
+   IO设备，一般都是机械式的，所以IO设备通常都是最慢的设备）
+虚拟机：虚拟计算机
+       比如利用软件方式模拟提供了一个虚拟的计算机，相互之间是独立的。
+       cpu的虚拟：是通过切割的时间片来实现的。
+       内存虚拟：用多少占多少
+cpu：运算器、控制器
+     CPU指令，指令集
+              特权指令：特权指令
+              普通指令：应用程序指令
+     高级语言转换为汇编的过程 取决于芯片的类型
+     将汇编语言转换为机器代码叫做汇编过程
+操作系统：抽象为一个通用的软件
+         软件程序
+         通用目的：
+              硬件
+              进程
+              内存管理
+              网络管理
+              安全管理
+         应用进程申请操作特权指令的过程叫做系统调用 System Call
+          编程层次：
+                硬件规格：复杂
+                系统调用：抽象的系统调用，对硬件进行抽象，向上包装了一层操作系统。
+                库调用：library call 提供用户态服务
+UI  User Interface  用户接口：用来和操作系统打交道。
+   GUI ：Graphic  User Interface 图形用户界面
+   CLI ：Command Line Interface 命令行接口
+ABI Application Binary Interface 二进制运行接口（就是一种二进制的接口格式，例如windows exe）
+API Application Program Interface 应用程序编程接口（linux上的编程的接口和windows上是兼容的）
+CPU的架构类型 
+    x86
+    x64
+    arm
+ 
+    m68000，m68k
+    power 时间上第一个多核CPU
+    powerpc
+    ultrasparc  sun
+    alpha  惠普
+    安腾 
+    每一个CPU的指令集是不同的。
+
+    Windows
+    Linux
+    Unix：
+        System（嫡出 Bell Lab）
+           AIX（IBM）            
+           Solaris（Sun）
+           HP-UX（HP）
+        BSD：伯克利二次封装
+            NetBSD
+            OpenBSD
+            FreeBSD
+ 

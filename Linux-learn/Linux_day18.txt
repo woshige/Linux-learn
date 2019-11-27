@@ -1,0 +1,77 @@
+Linux上的特殊权限：
+      SUID SGID Sticky
+     1、权限
+                 r w x 
+                 user group other
+     2、安全上下文
+                 前提：进程有属主和属组，文件有属主和属组
+                 任何一个可执行的程序能不能启动为进程，取决于发起者对程序文件是不是有执行权限。
+                 如果启动为进程之后的程序，其进程属主为进程的发起者，进程的属组为发起者所属的组。 
+                 安全上下文法则：检查过程：（1）是不是属主 （2）是不是属组 （3）使用其他用户权限
+     3、SUID ：
+          （1）可执行文件变成了一个进程之后，如果对应的可执行的文件有SUID权限，进程的属主变成
+                  程序文件的属主。  
+          （2）一个用户能不能将一个可执行的文件变成一个进程，取决于是不是有可执行权限。
+                 -rwsr-xr-x. 1 root root 27832 Jun 10  2014 /bin/passwd   
+                 所以普通用户可以passwd修改自己的密码（权限上升，属主变成了root）    
+                 举例：对cat命令进行赋予s权限，来使得原来普通用户不能对/etc/passwd进行查看的情况
+                 发生了变化，一个普通的用户就可以查看/etc/passwd
+                 cp /bin/cat /tmp/cat
+                 chmod u+s /tmp/cat
+                 su - slc
+                 /tmp/cat /etc/shadow
+                 /tmp/cat /etc/shadow >> file
+       4、SGID
+             创建文件，文件使用的是创建者的基本组
+             但是如果给一个目录的SGID权限之后，则在目录中有写权限的用户创建的时候，
+             文件所在组为目录的基本组
+             但是在这个目录中，所有的用户都可以互相删除对应的文件。
+            一个文件可不可以删除取决的是所在的目录是不是有写权限。
+       5、Sticky 
+             对于一个多人的可写的目录：如果设置了Sticky权限，只能删除自己的权限
+             chmod o+t DIR
+             chmod o-t DIR
+             比如/var/tmp /tmp 目录都有这样的设置Sticky
+             SUID SGID Sticky
+             000...111
+             chmod 3 777 file 表示的是在全部用户可读可写可执行的基础上+SGID+Sticky
+              3对应的是特殊的权限。
+      权限位置映射：
+            SUID ：user占据属主执行权限位置
+                        s：表示的是属主拥有x权限。
+                        S：表示的是属主没有x权限。
+            SGID：group占据属组的执行权限位置
+                        s：表示的是属组拥有x权限。
+                        S：表示的是属组没有x权限。
+            Sticky：other 占据other的执行权限位
+                        t ：other拥有x权限
+                        T：other没有x执行权限
+bash脚本编程：
+      过程式编程语言：
+                  顺序执行
+                  选择执行 
+                  循环执行
+      选择执行：
+             if   判断条件 ;那么
+                       条件为真分支代码
+             fi //结束
+             if 判断条件 ; then
+                        条件为真代码
+             else
+                        条件为假代码
+             fi  //结束
+                           
+简单的脚本使用if
+#!/bin/bash
+if [ $# -gt 1 ];then
+    echo "at least one argument"
+    exit 1
+fi
+if [ id $1 ] &> /dev/null;then
+    echo "$1 exits"
+    exit 0
+else
+  useradd $1
+  echo "$1"
+ [ $? -eq 0 ] && echo "$1" | passwd --stdin $1
+fi

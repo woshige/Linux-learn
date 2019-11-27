@@ -1,0 +1,57 @@
+文件管理工具 cp，mv，rm
+        cp命令：copy
+               源文件、目标文件
+        文件复制：复制文件的数据
+          单个文件复制  ：  cp [OPTION]... [-T] SOURCE DEST
+                     如果DEST不存在，则事先创建DEST，并将源文件的数据流复制到DEST中。
+                     如果DEST存在：
+                                   如果是文件，则会进行覆盖。 
+                                   如果DEST是目录文件，现在DEST中创建一个与源文件同名的文件，
+                                   并复制其数据流至目标文件。
+          多个文件复制： cp [OPTION]... SOURCE... DIRECTORY
+                       如果DEST不存在：复制失败
+                       如果DEST存在
+                                   如果DEST是非目录文件，错误
+                                   如果DEST是目录文件，分别复制每个文件至目标的目录中并保持原名。
+          目标目录放在了前面cp [OPTION]... -t DIRECTORY SOURCE...
+          常用的选项
+               -i ：覆盖文件之前进行确认
+               -f ：强制覆盖目标文件
+               -r ：表示递归复制目录，以及目录中的内容。
+               -d：将符号链接复制过来，保留的是文件的链接的属性
+               -a：用于实现归档（备份）
+               --preserv=
+                         mode 权限
+                         ownership 属组属主
+                         timestamps  时间戳
+                         context 安全标签
+                         links 符号链接
+                         all  所有属性
+
+
+             mv命令 ：move 一定或者重命名 （移动的原理是，复制-->删除）
+                             move一个目录的时候是不用加选项。
+                            常用选项
+                                  -i  交互式
+                                  -f force
+             rm命令： remove files or directories
+                             rm [OPTION]... FILE...
+                             rm -i 提示 是 rm -i的别名
+                             rm -r  /tmp/log  不停的提示
+                             rm -f /tmp/log
+                             rm -fr /tmp/log   
+                注意：所有不用的文件不要直接的进行删除，而是移动到某个专用的目录（模拟回收站）
+            变量：引用一块内存中的一段内存空间，方便进行存储。
+                命名的内存空间：
+                          变量的类型：整形、浮点型、字符型、布尔型、日期类型。
+                                  按照计算机的分类： 
+                                               数值：
+                                                       精确数值型：
+                                                       近似数值型：
+                                               字符型：
+                                     存储格式、数据范围、参与运算
+                                      数值：8 0000 1000
+                                      字符： 
+                                              ASCII表示：
+简单的文本编辑器：
+      nano   Nano's ANOther editor, an enhanced free Pico clone

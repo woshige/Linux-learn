@@ -1,0 +1,119 @@
+vim的多文件模式
+      一次可以打开多个文件
+            vim /tmp/{grub2.cfg,functions,fstab}
+            下一个 next 
+            上一个 prev
+            最后一个 last
+            第一个 first
+             可以在文件之间的复制粘贴 比如在 functions中进行复制，粘贴在fstab中。
+           :wall 保存所有
+           :qall  退出所有
+      窗口分割模式：一个窗口显示多个文件
+               vim -o FILE1 FILE2    水平分割
+               vim -O  FILE1 FILE2  垂直分割
+              窗口之间进行切换：Ctrl + w进行切换
+              Ctrl + w,s 水平分割
+              Ctrl +w，v 垂直分割
+定制vim的工作特性
+     配置文件：永久有效
+            全局：  /etc/vimrc
+            个人： ~/.vimrc  （自己配置）
+     末行模式：当前的vim进程有效
+ （1）显示行号： 
+      set number 或者 set nu 显示行号
+      set nonumber 或者 set  nonu  取消显示行号
+ （2）括号匹配
+        匹配：set showmatch  或者是  set sm
+        取消：set nosm
+ （3）自动缩进
+         set ai 
+         取消  set noai
+ （4）高亮搜索结果
+         启用  set hlsearch
+         禁用： set nohlsearch
+ （5）语法高亮
+         启用  syntax on
+         禁用  syntax off
+ （6）忽略字符的大小写
+         启用 set  ic
+         不忽略：set  noic
+获取帮助
+  :help COMMAND
+如何设置tab缩进的时候为四个字符
+
+练习：
+1、复制 /etc/rc.d/functions文件至 /tmp 目录去替换   /etc/sysconfig/init为 /var/log
+2、删除/tmp/functions文件中所有以#号开头的行，且#号后面为非空白字符的行的行首的#号
+#hello 删除（可能是配置的参数）
+# hello
+bash条件测试：
+        测试方式：
+                   test  EXPRESSION
+                   [[EXPRESSION]]
+                   [EXPRESSION]
+        表达式类别：
+           数值比较：
+           字符串测试：
+           文件测试：
+                   -a FILE
+                   -e FILE ：表示文件存在性测试 存在为真，不存在为假
+                   -b FILE文件存在还是一个块设备文件
+                   -d FILE目录  是否存在且为目录文件
+                   -f  FILE是否存在，且是不是普通文件
+                   -h  FILE 或者是 -L FILE 是否存在，且是不是链接文件
+                   -p FILE 是否存在且是不是命名管道文件
+                   -S FILE 是否存在且是不是套接字文件
+                   文件权限测试：
+                            -r FILE 文件是否存在且是否可读
+                            -w FILE 文件是否存在且是否可写
+                            -x FILE 是不是存在且可执行
+                   文件的特殊权限：
+                                     -g FILE 文件存在且拥有sgid权限
+                                     -u FILE 文件是否存在且拥有suid权限
+                                     -k FILE 文件是不是存在且拥有sticky权限
+                   文件体积测试：
+                             -s FILE 文件是否存在且非空
+                   文件打开性测试：
+                             -t fd：表示的文件描述符是否已经打开，且与某终端相关
+                   
+                    -N FILE 文件自从上一次被读取之后，是否被修改过。
+                    -O FILE 当前有效用户是否为文件的属主
+                    -G FILE 当前有效用户是否为文件的属组
+                    双目测试：
+                               FIEL1 -ef  FILE2 判断两个文件是不是同一文件
+                               FILE1 -nt FILE2 FILE1是不是新与FILE2
+                               FILE2 -ot FILE2 判断FILE2 是不是旧于FILE2
+          组合条件测试：
+                 逻辑运算： 
+                               两种方式： 
+                                        第一种方式：
+                                          &&  [ -e file1 ] && [ -r file ] 
+                                          || 
+                                          |
+                                         第二种方式：
+                                          EXPRESSION1 -a EXPRESSION2  （test或者是[]）与
+                                          EXPRESSION1 -a EXPRESSION2  （test或者是[]）或
+                                          !EXPRESSION 
+                                          必须使用测试命令
+                     如果当前的主机名为空或者是localhost
+                                   hostname=`hostname`
+                                   [ -z $hostname ] || [ "$hostname"=="localhost.localdomain" ]
+                                   [ -z $hostname -o $hostname=="localhost.localdomain" ]
+                            脚本：
+                                 #!/bin/bash
+                                 hostname=$(hostname)
+                                 [ -z $hostname ] || [ $hostname == 'localhost.localdomain' ]
+                                 echo $?
+                                 [ -z $hostname -o $hostname == 'localhost.localdomain' ]
+                            判断一个文件是既不可读又不可写
+                              [  ! -r /tmp/file.txt -a ！ -w /tmp/file.txt ] 对于root用户是无效的
+                              [ ! \( -r /tmp/fstab -o -w /tmp/fstab \) ]
+                              但是对条件取反提出来的时候，应该使用的或条件。对一个条件进行取反的时候
+                              要进行相反的操作（德摩根定律）
+                       
+                      
+                               
+                   
+                                        
+                   
+       

@@ -1,0 +1,104 @@
+bash基础特性
+          命令补全：
+                  shell程序在接收到用户执行命令的请求时，分析完成之后，最左侧的字符串会被当做命令。
+                  根据PATH环境中的变量设定的目录，自左向右逐个搜索目录下的文件名。唯一的会被补全，
+如果不是唯一的，就会将所有的显示出来，供用户自行选择。
+            路径补全：根据给定的起始路径。
+
+目录管理类的文件：
+            -，d，b，c，l，s，p
+            mkdir，rmdir 
+
+             mkdir ：make directories
+                           mkdir [OPTION]... DIRECTORY...
+                           mkdir /tmp/x/y/z  指定的路径下创建z 如果没有除了z（base name）的路径，
+                           创建是失败的。
+                            -p 自动按需创建父目录
+                            -v verbose 显示创建的过程
+                            -m MODE ：直接给定权限
+                            mkdir -p /tmp/x/z 
+             rmdir  ：remove empty directories 仅用于删除空目录
+                            rmdir [OPTION]... DIRECTORY..
+                            -p：删除某空目录后，如果其父目录为空之后，一并删除。
+                            -v：显示过程
+            创建 /tmp/x/y1 /tmp/x/y2 /tmp/x/y1/a /tmp/x/y1/b？一个命令
+                 mkdir -pv /tmp/x/{y1/a,y2/b}
+            创建  a_b，a_d，b_c，b_d？
+                  mkdir {a,b}_{c,d}
+            创建 /tmp/mysysroot/
+                           bin
+                           sbin 
+                           etc
+                                 sysconfig
+                                       network-scripts
+                            usr
+                                 bin
+                                 sbin
+                                 etc
+                                 lib
+                            var
+                                  cache
+                                  log
+                                  run
+mkdir -pv /tmp/sysmyroot/{bin,sbin,etc/sysconfig/network-scripts,usr/{bin,sbin,etc,lib},var/{cache,log,run}}
+命令行展开功能
+             ~ 自动展开为用户的家目录
+             {}  分组机制，可承载一个以逗号分隔路径列表，并能够将其展开为多个路径。
+                 /tmp/{a,b} 相当于是 /tmp/a /tmp/b 
+tree命令 
+    tree -L level 目录  按照指定的层级的数目进行显示
+命令执行的结果
+         bash通过执行的返回的结果来输出此结果
+                成功：0
+                失败：1-255
+         命令执行完成之后，状态的返回值保存于bash的特殊变量$?中。
+      命令正常执行完毕时，有的返回命令的返回值。命令或功能的不同，结果也是不同的。
+       $(COMMAND)可以获得命令执行的结果。
+引用
+    强引用 ''  内部的字串直接显示
+    弱引用 ""  将值进行替换
+    命令引用 ``
+快捷键：
+  ctrl+a：跳转至命令行首部
+  ctrl+e：跳转至命令行尾部
+  ctrl+u：命令行首部到光标部分的内容
+  ctrl+k：光标所在处到行尾部所有的字符
+   ctrl+l：清屏
+文本查看命令
+cat tac head more less tail
+      分屏查看命令：
+                             more FILE 翻屏至文件的尾部退出
+                             less FILE  
+    head 指定文件的前n行 默认是10行
+            head -n 20 FILE 指定的文件的前20行
+     tail命令：
+             tail [options] FILE
+              tail  -20 /etc/rc.d/init.d/functions 后20行
+              tail -f FILE 等待文件的后续的追加不退出
+stat命令
+    stat - display file or file system status
+    显示文件或者是文件系统的状态
+    stat FILE 
+File: ‘/tmp/functions’ 文件名
+  Size: 13964           Blocks: 32         IO Block: 4096   regular file
+Device: fd00h/64768d    Inode: 101350532   索引的节点号 Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Context: unconfined_u:object_r:user_tmp_t:s0
+记录的时间戳
+最近访问        打开读取的时间
+Access: 2019-10-15 18:58:53.113361749 -0400
+最近更改 新增（数据改变，元数据也改变，因为更改时间、大小也会变化）
+Modify: 2019-10-15 18:58:53.113361749 -0400
+最近改动 元数据改变
+Change: 2019-10-15 18:58:53.113361749 -0400
+ Birth: -
+             元数据：metadata  stat命令能够查看的信息
+             数据：data 
+             手动改变时间
+                     touch 可以改变访问时间和更改时间
+                     touch FILE 三个时间都会改变，如果文件不存在的话，就会创建一个新的文件。
+                     touch -c FILE 如果文件不存在时，就不进行创建。
+                     -a accesstime
+                     -m modify time
+                     -t [[CC]YY]MMDDhhmm[.ss] 指明要改为的时间
+                      touch -m 200212010303.03 FILE 

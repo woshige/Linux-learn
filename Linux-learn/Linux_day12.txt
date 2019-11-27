@@ -1,0 +1,99 @@
+Linux文本过滤三剑客
+           grep：文本过滤（模式：pattern）工具
+                  grep,egrep,fgrep
+           sed：stream editor：文本编辑工具
+           awk：Linux上的实现为gawk 文本报告生成器
+  grep：Global search REgular expression an Print out the line
+              作用：文本搜索工具，根据用户指定的模式对目标文件进行匹配检查，打印匹配到的行
+                  模式：由正则表达式字符以及文本字符所编写的过滤条件
+                             正则表达式：
+                                    BRE 基本正则表达式
+                                    ERE 扩展正则表达式
+                             正则表达式引擎：
+                                    用来检查匹配，不同的引擎使用的机制是不同的
+                                           grep -E  ，egrep
+       用法： grep [OPTIONS] PATTERN [FILE...]
+                                grep root /etc/passwd
+                   选项：
+                         --color=auto 对匹配到的文本着色显示
+                         -v   反向选择，不显示匹配到的字符串
+                         -E 扩展正则表达式
+                         -G 基本扩展表达式
+                         -i  匹配时忽略字符的大小写
+                         -o 仅显示匹配到的字符串
+                         -q 检查匹配不显示
+                         -A  2   显示指定的行，并显示行后的行
+                         -B  2   显示指定的行，并显示行之前的行
+                         -C  2   显示
+                         -E 使用扩展的正则表达式
+ 基本正则表达式元字符
+         字符匹配：
+                   . 匹配任意单个字符（glob中的是?号）
+                  [] 指定范围内的任意单个字符
+                  [^] 匹配指定范围外的任意单个字符
+                  [0-9] [:digit:]  [:lower:]  [:upper:] [:alpha:] }  [:alnum:]  [:space:]        
+                  例子：
+                           grep 's..n' /etc/passwd   
+                           grep '...t' /etc/passwd    
+                           grep '[[:alpha:]][[:alpha:]][[:alpha:]]' /etc/passwd
+         匹配次数：
+                   用在要指定字符的后面，指定前面的字符出现的次数
+                   * 表示的是前面的字符的任意次数
+                   grep "x*y" 表示y前面x出现的次数为任意次
+                          abxy ok
+                          xay  yes
+                          xxxxxxxxxxxxxxxxxxy yes 默认情况，正则表达式工作于贪婪模式
+                          x no
+                   .* 任意长度的任意字符
+                   \? 表示出现的次数为0或者是1次，前面字符是可有可无的。
+                   \+ 表示至少出现一次，1次或者是多次数
+                   \{m\} 匹配的次数为m次
+                                 grep '[[:alpha:]]\{3\}t' /etc/passwd
+                   \{m,n\}：匹配次数至少为m，最多为n次
+                   \{0,m\} 最多m次
+                   \{m,\}  最多m次
+         位置锚定：
+            ^ 行首锚定
+                  ^root 行首
+                   root$  行尾
+                  ^root$ 整行的模式匹配
+                  ^$ 空行
+                  ^[[:space:]]*$
+                  英文单词：非字符隔开
+                  \< 或 \b：词首锚定，用于单词模式的左侧
+                  \> 或 \b:   词尾锚定，用于单词模式的右侧
+                  \<pattern\> 匹配的是整个单词
+              分组：\(xy\) 将xy分成一个整体，当做一个整体
+                         \(xy\)\+
+                       分组模式匹配到的内容会被正则表达式引擎记录于内部的变量中，这些变量的命名方式
+                       为\1 \2 \3
+                          \(ab\+\(xy\)*\)
+                          \1 \(ab\+\(xy)*  第一个左括号从左侧起始以及与之匹配的右括号之间的模式
+                        匹配到的字符
+                          \2 xy
+                       后向引用：引用前面的分组中的括号中字符所匹配到的字符（并不是模式）。
+                   
+     练习：显示/proc/meminfo 中的文件按大小写s开头的行
+                grep -i '^s' /proc/meminfo
+                grep '^[sS]' /proc/meminfo 
+               显示/etc/passwd 文件中不以/bin/bash开头的行
+                grep -v  '/bin/bash$' /etc/passwd
+               显示/etc/passwd 文件中 ID号最大的用户
+                ssort -t: -k 3 -n /etc/passwd|tail -1|cut -d: -f 1
+               如果root用户存在，显示默认的shell程序
+               id root &> /dev/null && grep '^root'  /etc/passwd  | cut -d: -f7
+               找出/etc/passwd 中的两位数和三位数
+                grep  '\<[0-9]\{2,3\}\>' /etc/passwd
+               显示/etc/rc.d/rc.sysinit文件中，至少以一个空白字符开头的且后面存在非空白的字符
+                grep '^[[:space:]]\+[^[:space:]]\+' /etc/grub2.cfg
+               找出“netstat -tan”命令中结果以“LISTEN”后跟0,1或者多个空白字符结尾的行
+                netstat -tnl |grep 'LISTEN[[:space:]]*$'
+               添加bash testbash basher 已经nlogin 其shell为/sbin/nlogin 找出/etc/passwd 用户名同
+               shell名的用户
+               grep '^\([[:alnum:]]\+\>\).*\1$' /etc/passwd   \1表示的是对之前匹配的引用。
+      练习：1、写一个脚本，实现如下功能
+                    如果user1用户存在，就实现存在，否则添加
+                    显示添加用户的id号信息
+                2、写一个脚本实现如下的功能
+                    如果root用户登录了当前的系统，显示root用户在线，否则说明其未登录 
+             

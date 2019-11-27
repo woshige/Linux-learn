@@ -1,0 +1,66 @@
+Linux系统文件类型
+    ls - l
+        -：常规文件：即f；
+        d：目录文件：目录文件；
+        b：block device 块设备文件  以block为单位进行随机的访问
+        c：character device 字符设备文件 以charater为单位进行线性访问
+                major number  ：主设备号 标志设备类型，进而确定要加载的驱动的程序
+                minor number  ：次设备号 用于标识同一类型上不同的设备
+                           8为二进制：0 - 255 
+        l：symbolic link 符号链接文件，软连接文件
+        p：有名管道、明名管道
+        s：socket 套接字文件：实现两个进程之间的通信
+                
+基本命令
+        命令类型：
+               外部命令：
+               内部命令：
+               type COMMAND 
+                           内部 builtin ls是shell内部的命令 shell本身是外部的命令
+                           外部 显示命令文件路径       命令可以有别名 
+                                 如果要是用原命令 使用方式为 \COMMAND
+          命令别名
+                显示所有的别名  alias
+                命令别名   alias NAME='COMMAND' 只对当前的shell进程有效
+                撤销别名 unalias NAME 即可
+                永久有效
+          which显示文件的绝对路径  
+                  which --skip-alias ls  跳过别名
+          whereis 命令
+                 whereis -b ls 只显示 二进制格式
+                 whereis -m ls 显示手册 
+          who 显示终端的登陆者
+                    tty1 本地的虚拟终端
+                    -b 系统此次登录的时间
+                    -l 显示登录进程
+                    -u 
+                    -r 运行级别
+            w  who指令的增强级别
+bash基础特性
+             命令历史： shell进程在会在其会话中保存之前用户提交执行过的命令
+             history ：
+                       定制：history功能，可通过环境变量配置实现（文件存储+内存）
+                                HISTSIZE 命令历史的条数   
+                                HISTFILE /root/.bash_history  用户的家目录下 存储内存中的命令的历史
+                                HISTFILESIZE 文件命令的大小
+                       用法
+                               history [-c] [-d offset] [n]  
+                               or history -anrw [filename] 
+                               or history -ps arg [arg...]
+                               指定的位置清空：
+                               history -d number
+                               history -c 清空历史
+                               history -a 将当前会话中的历史记录从内存中读取到文件中
+                               history -r 从文件中进行读取
+                               history -w 将历史文件读取到内存中
+                               history 10 显示最近的10条历史
+                        调用历史列表中的命令
+                                !# ：再一次执行历史列表中的第#条命令
+                                !!  ：再一次执行上一次的命令
+                                !STRING ：再一次执行命令历史列表中的最近的以STRING为开头的命令
+                                       注意：命令重复执行的时候要依赖于幂等性。
+                                 使用上一条命令的参数  ESC + .   或者是 !$ 
+                         控制命令历史：echo + $HISTCONTROL   重复的命令
+                                        ignoredups：忽略重复的命令
+                                        ignorespace：忽略以空格为开头命令
+                                        ingnoreboth ：两者都生效

@@ -1,0 +1,68 @@
+Linux磁盘管理
+    I/O Ports：I/O设备地址
+    一切皆文件：open() read() write() close()
+             b ：块设备 blcok 磁盘
+             c  ：字符设备 存储单元为字符 键盘设备
+             设备文件：关联至一个设备的驱动程序，进而能够与之对应的硬件设备进行通信。
+                   设备号码：
+                          主设备号：major number 设备类型
+                          次设备号：minor number 表示同一个类型中的不同的设备
+             硬盘的接口类型：
+                       为了完成CPU和硬盘不同的硬件设备进行交互，就存在了一个特殊线缆，通过控制器解析。
+                        并行：交换速率比较慢，并行容易出错
+                        IDE  133MB/s
+                        SCSI 640MB/s
+                        串行：
+                        SATA 6Gbps
+                        SAS   6Gbps
+                        USB   480MB/s
+                        rpm：转速  rotation per minute 
+                                 
+              /dev/DEV_FILE
+                    磁盘设备文件命名方式：
+                    IDE  /dev/hd
+                    SCSI SATA SAS USB /dev/sd
+                    不同设备  a-z
+                         /dev/sda /dev/sdb....
+                    同一设备的不同的分区  123...
+                         /dev/sda1  /dev/sda2
+            机械式硬盘的基本的工作机制
+                  track：磁道 存储信息
+                  cylinder：柱面  
+                  secotr：扇区
+                        512bytes
+                  如何分区：
+                        从逻辑的角度上划分成为多个独立的空间？
+                        按照柱面进行划分--->怎么知道自己的磁盘有几个分区？
+                        mbr：0扇区0磁道     512 bytes   Master Boot Record
+                               MBR：
+                                    其中446个字节： boot   loader 引导加载器
+                                    其中64个字节存储分区表
+                                              16bytes：表示一个分区 所以一个硬盘最多可以分出来四个分区
+                                               但是四个分区不够用的时候，将其中一个分区变为一个扩展分区表
+                                               扩展分区表可以指向其他的分区。
+                                               3个主分区+1扩展（N个逻辑分区）
+                                    2bytes   存储MBR的有效性标志 55AA表示的前面510个字节是有效的
+                          硬盘单盘的容量大于2T，MBR会失效
+                                 uefi和gpt
+    Linux分区管理工具  fdisk  parted sfdisk
+          fdisk：对于一块硬盘来讲，最多管理的是15块分区。
+                fdisk -l 列出指定磁盘设备的分区信息
+                fdisk device 完成分区
+                    子命令：
+                       m 获取帮助
+                       p print 显示已有分区
+                       n 新建 （e默认为扩展分区）
+                       d 删除
+                       w 写入磁盘并退出
+                       q 放弃更新并退出
+                       l 列出所有的分区id 表示使用到那种操作系统的id
+                       t 调整分区id
+               查看内核是否已经真正的识别新的分区
+                   cat /proc/partations
+                   如果发现未识别，手动的通知内核
+                   partx   -a /dev/sda  全部进行了识别
+                   partx   -a -n 4:6 /dev/sda 分区编号第四个到第六个
+                   kpartx -a /dev/sda 添加
+                              -f 强制但是有风险
+                                                      

@@ -1,0 +1,69 @@
+Linux文件系统管理
+     Linux文件系统：ext2（centos5）ext3  ext4  xfs（centos7）bprfs（centos7）reiserfs
+               jfs swap
+               swap：交换分区，用来将磁盘当内存使用。
+                     如果每个进程有4g的内存，100个进程对应的不是400g（虚拟内存作用）
+                     ，但是当真正的物理的内存中不够用的时候，将真正的物理内存中不常使用的交换出去
+                     ，当真正使用的时候，从swap重新加入到内存。
+              光盘系统：iso9660
+      window fat32  ntfs（linux也是支持的，但并不是特别好）
+      unix ffs ufs jfs2
+      网络文件系统：nfs cifs（通用Internet文件系统）
+      集群文件：gfs2 ocfs2
+      分布式文件系统：ceph
+              moosefs  mogilefs glusterfs  lustre
+      根据是否支持“journal”功能
+               日志型文件系统：ext3  ext4 
+               非日志文件系统：ext2 vfat
+文件创建，先去创建元数据（保存在那些磁盘块进行存储，包含自己的属性，还有磁盘分区的那个块上进行了存储）
+假如非正常关机，就会检查元数据区域，看看哪些是不完整的。
+有日志区域：任何一个文件存储的时候，现将元数据存储在日志区域，存完了就将元数据存放在元数据区域。
+下次检查的时候检查日志区，就比较快。但是从日志区到元数据区域就多了一次io操作。
+
+格式化：就是对一个房子放一个书架，并建立索引的过程。
+文件系统中的组成部分：
+        内核中的模块：ext4
+        用户空间的管理工具：mkfs.ext4
+Linux的虚拟文件系统：VFS
+        VFS自动转换对特定的系统调用
+         创建文件系统：
+         cat /proc/filesystems
+         没有显示nodev的是正在使用的文件系统
+         lsmod 显示内核的模块
+    mkfs
+         mkfs         mkfs.btrfs   mkfs.cramfs  mkfs.ext2    mkfs.ext3    mkfs.ext4    mkfs.minix   mkfs.xfs 
+          
+        mkfs.ext4 /dev/sda4 对第四个分区进行了格式化
+
+        blkid /dev/sda4 显示分区的信息
+        /dev/sda2: UUID="r19bhY-y5fg-BBiz-eHRs-LV92-HdC5-1re4xl" TYPE="LVM2_member"
+         对应的每个硬盘的id，防止重复
+        mkfs.ext4  -L  mydata  /dev/sda4 对第四个分区进行了格式化，并进行了改名
+        创建文件系统：
+             （1） mkfs.FS_TYPE /dev/DEVICE
+                               ext4  xfs   btrfs  vfat
+             （2）mkfs -t FS_TYPE /dev/DEVICE
+               
+               -L "LABLE"     指定卷标
+              mke2fs：ext文件系列专用的管理工具。
+                 -t   ext2 ext3 ext4 指定的方式
+                 -b 1024 2048 4096 指定block的大小
+                 -L   卷标   
+                 -j  相当于使用 -t ext3 （四种创建的方式）
+                 -i # 为数据空间中的多少个字节创建一个inode，此大小不应该小于block的大小
+                 -N #为数据空间创建多少个inode
+                 -m # 为管理员预留的空间占据的百分比
+                 -O FEATURE 启用特性
+                         -O ^FEATURE 关闭特性
+其他工具
+         blkid   块设备信息查看
+                -U  根据uuid来查找设备
+                -L "LABLE" 根据指定的label来查找对用的设备
+         e2label：管理ext系列文件系统的LABLE
+                e2label DEVICE [LABLE] 指明卷标 
+                
+         tune2fs：重新设定ext系列文件系统可调整参数的值
+                    -l 查看指定文件系统的超级块信息
+超级块？
+   由于磁盘的块太过于大，管理不方便，但是为了方便管理，超级块出现了。
+   规定了磁盘分区的组织划分。为了保证可用性，做了备份。

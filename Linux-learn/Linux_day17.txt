@@ -1,0 +1,113 @@
+文件查找：
+      在文件系统上查找符合条件的文件：
+              文件查找工具  locate  find
+                      非实时查找（数据库查找）
+                      实时查找 ：find   
+               locate  
+                     依赖于事先构建的索引，索引的构建是自动进行的（周期性的任务）手动更新数据库
+                     （updatedb）需要遍历整个根文件系统，是一种非常消耗资源的操作，是非常危险的操作，尽量不在生产环境中进行
+                     使用。
+                    工作特点：
+                          查找速度快
+                          模糊查找
+                          非实时查找
+                     使用方法：locate  passwd 
+      find命令：实时查找工具，通过遍历指定的路径下系统进行查找的。
+                     工作特点：
+                         查找的速度略慢
+                         精确查找
+                         实时查找
+                        
+                      工作方式：
+                                 find  [OPTION]...  [查找路径]  [查找条件] [处理动作]
+                                     查找路径：指定的具体的目标路径，默认为当前目录。
+                                     查找条件：指定的查找标准：文件名，大小，类型，权限，
+                                                      默认为指定路径下的所有的文件
+                                     处理动作：对符合条件的文件做什么操作，默认为显示
+                                     查找条件：
+                                               按照文件名进行查找：
+                                                          -name "文件名称"   支持glob
+                                                                        * ? [] [^]
+                                                           find /etc/ -name "passwd"
+                                                          -iname 是不严格区分大小写
+                                                          -regex "模式" 使用正则表达式，以PATTER去匹配整个文件路径的
+                                                                       而不是文件名。
+                                                          -user username 
+                                                                      find /home/ -user slc -ls
+                                                          -group group name 
+                                                                       chown root:slc /tmp/fstab
+                                                                       find /tmp/ -group slc
+                                                          -uid  userid  查找属主为指定的uid号的文件
+                                                          -gid  groupid 查找属组为指定的groupid号的文件
+                                                          -nouser：查找没有属主的文件
+                                                                          find /tmp/ -nouser
+                                                          -nogroup ：查找没有属组的文件
+                                               根据文件类型：find /etc/ -type l
+                                                          -f 普通文件
+                                                          -d 目录文件
+                                                          -l  符号链接
+                                                          -b 块设备
+                                                          -c 字符文件
+                                                          -p 管道文件
+                                                组合条件：
+                                                       与 -a
+                                                       或 -o 
+                                                       非 not !
+                                                       例如：find / \( -nouser -o -nogroup \) -ls
+                                                       属主不是root且文件名不是fstab
+                                                       find /etc/ \( -not -user root -a -not -name "fstab" \) -ls
+                                                 按照文件的大小：
+                                                        -size [+|-]#unit
+                                                        常用的单位：M K G 
+                                                        #unit ：表示范围是从 (#-1,#]
+                                                        例如：find /etc/ -size 3k -exec ls -lh {} \;
+                                                        -#unit：[0,#-1]
+                                                        +#unit：(#,+oo)
+                                                  按照时间戳
+                                                         以天为单位：
+                                                               -atime  [+|-]#
+                                                                       #：[#,#+1)
+                                                                       +#：[#+1,oo)
+                                                                       -#：[0,#)
+                               		               -mtime +3 三天之内  -3 三天之前
+                                                               -ctime
+                                                         以分钟为单位：          
+                                                                   -amin
+                                                                   -mmin
+                                                                   -cmin    
+
+                                                    根据权限进行查找
+                                                                 -perm [-|+] mode
+                                                                 /MODE 任何一类对象的权限中只要能匹配一个就可以。
+                                                                 -MODE 包括就匹配
+                                           处理动作：对查找到的文件做的操作
+                                                -print 默认处理动作
+                                                -ls   类似于对查找的文件执行ls -l
+                                                -delete 删除查找到的文件
+                                                -fls   /path/to/somewhere  查找的格式信息存储至指定的文件中。
+                                                        find . -perm /060 -fls info.txt
+                                                -ok  COMMAND {} \;对于执行之前进行确认                  
+                                                -exec COMMAND {}\; 直接执行
+                                  注意：find传递查找的文件至后面指定的命令时，查找到所有符合条件的文件
+                                 一次性传递后面的参数，有些命令不能传递过长的参数，此时执行的命令可能会失败
+                                  可使用如下的方法进行规避。
+                                    find | xargs COMMAND
+练习：
+1、查找/var/目录下属主为root，且属组为mail的所有的文件或目录
+find /var/ -user root  -group mail
+2、查找/usr/目录下不属于root、bin、或者hadoop的所有的文件或目录
+find /usr/ -not -user root -a -not -user bin -a -not -user hadoop
+find /usr/ ! \( -user root -o -user hadoop -o -user bin \)
+3、查找/etc/目录下最近一周内其内容修改过，同时属主不为root，也不是hadoop的文件或目录
+find /etc/ -mtime -7 -a -not -user root -a -not -user hadoop
+find /etc/ -mtime -7 -a -not \( -user root -o -user hadoop \)
+4、查找当前系统上没有属主或属组，且最近一个周内被访问过的文件或目录
+find / -nouser  -nogroup -atime -7
+5、查找/etc/目录下大于1M且类型为普通文件的所有的文件或目录
+find /etc/ -size +1M -type f
+6、查找/etc/目录下所有的用户都没有写权限的文件
+find /etc/ -not -perm /222
+7、查找/etc/目录下至少有一类用户没有执行权限的文件
+find /etc/ -not -perm -111
+8、查找/etc/init.d 目录下，所有的用户都有执行权限，且其它用户都有写权限的文件
+find /etc/init.d/ -perm -113 -ls                    

@@ -1,0 +1,31 @@
+文件系统管理：
+   一切文件系统的访问，都要从/开始  /是kernel负责加载的。
+   通电自检-->bootloader-->kernel-->rootfs-->/sbin/init 
+   kernel第一步加载的是/    grep 'kernel' /etc/grub2.cfg /是在什么地方是认为进行指定的。
+   linux系统使用其他的磁盘 需要进行挂载，就是一个文件系统的访问接口。
+   解除这个管理系统的关联关系的过程称之为卸载。
+   把设备挂载至挂载点   Mount  Point
+    mount
+   卸载时：可使用设备，也可以使用挂载点
+    unmout 
+挂载点下的原有的文件在挂载完成之后，会临时进行隐藏，所以挂载的时候，使用空目录。
+ mount DEVICE  Mount Point
+ mount 
+mount [-fnrsvw] [-t vfstype] [-o options] device dir
+          device 要挂载的设备
+                     设备文件
+                         /dev/sda5 /dev/sda2
+                     卷标
+                        -L MYDATA   
+                     uuid -U uuid   即使设备很多，不会产生冲突。
+                     伪文件系统名称  proc  sysfs devtmpfs  configfs
+          dir
+                事先存在，建议使用空目录
+                     -t  vsftype 指定要挂载的设备文件上的系统类型
+                     -r readonly  只读挂载
+                     -w read and write 读写挂载
+                     -n 不更新/etc/mtab
+                     -表示自动挂载所有支持自动挂载的设备（自定义在了/etc/fstab中，且挂载选项中有自动挂载）
+
+                      
+                     

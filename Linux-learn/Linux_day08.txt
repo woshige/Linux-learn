@@ -1,0 +1,132 @@
+bash基本属性
+       命令别名：alias
+                       alias 显示shell进程中的所有可用的别名
+                       alias NAME='VALUE'  定义别名
+                       注意：在命令行中定义的别名只对当前的进程有效，如果想要永久有效，就要定义在
+                       配置文件中。
+                       仅对当前用户有效.bashrc
+                       对所有的用户有效  /etc/bashrc
+                       重新读取文件  source  .bashrc
+                                            .   .bashrc
+                        unalias NAME  撤销别名  
+                        unalias  -a   撤销所有的别名
+                        如果要是用别名指向的元命令的名称 \COMMAND
+
+       globbing ：文件名通配
+               匹配模式：元字符
+                     *：任意长度的任意字符
+                             pa*  以pa开头的文件， *pa*中间含有pa ， *p*a*p在a之前
+                     ?：匹配任意的单个字符
+                             pa?  ，??pa，p?a，p?a?
+                                   pa 不符合 ，paa符合，passwd不符合。
+                     []：匹配指定的范围内的任意的单个字符
+                           [a-z]，[A-Z]，[0-9]，[a-z0-9] 不区分大小写
+                           pa[0-9][0-9]
+                      ls /etc/pa*
+                      [[:upper:]]  大写字母开头
+                      [[:lower:]]   所有的小写字母
+                      [["alpha:]]  所有字母
+                      [[:digit:]]  所有数字
+                      [[:alnum:]] 所有的字母
+                      [[:space:]] 空白字符
+                      [[:punct:]] 所有的标点符号
+                      [^] 指定范围外的字符 如[^[:upper:]]  大写字符之外的符号
+           显示/var 目录下的l开头小写一位字母结尾，中间隔了至少一位数字文件和目录
+           ls -d /var/l*[0-9]*[[:lower:]]
+           显示/etc 目录下以数组开头以非数字结尾文件和目录
+           ls -d /etc/[0-9][^0-9]
+           显示/etc目录下以非字母开头，后面跟了一个字母和其他任意长度的非字符文件或者目录
+           ls -d /etc/[^[:alpha:][[:alpha:]]*
+           显示/etc m开头非数字结尾
+           ls -d /etc/m*[0-9]
+      IO重定向以及管道
+               程序：指令+数据
+                       读入数据  Input
+                       输出数据  Output
+               打开的文件都有一个fd：file descriptor（文件描述符）
+               标准输入：keyborad  0
+               标准输出：minitor（监视器）1
+               标准错误输出：monitor 2
+      IO重定向就是改变标准的输入和输出的位置（标准输入就是默认的输入输出）
+          输出重定向：COMMAND > NEW_POS COMMAND >> NEW_POS
+                             >覆盖重定向，目标文件中的原有的内容进行了清除
+                             >>追加重定向
+              #set -C 禁止将内容覆盖输出至原有的文件中。
+              >|   强制覆盖
+             #set +C 打开允许覆盖重定向的开关。
+             命令的错误的输出流是一个单独的数据流，要进行IO的重定向，使用 2>
+                  2仅能覆盖错误的输出流
+              2>> 是错误的追加
+              要是想吧标准的输出和错误的输出各自定向至不同的位置
+              COMMAND > /path/to/file.out   2> /path/to/file.out
+              合并标准输出和错误的输出为同一个数据流进行输出
+                &>
+               COMMAND >/path/to/file.out 2 > &1
+               COMMAND >/path/to/file.out 2 >> &1
+            输入重定向：
+                       tr 转换和删除字符
+                             tr [OPTION]... SET1 [SET2]
+                      tr abc ABC </etc/fstab        tr从标准的输入流进行读取，<可以指定文件为输入流
+                      tr -d abc
+                      <   输入重定向
+                      <<  创建文档
+                       cat << EOF
+                      cat >> /tmp/test.out <<EOF
+        管道：将第一个命令的输出的结果送给第二个命令为输入..... 
+          COMMAND1 | COMMAND2 | COMMAND3...
+          最后一个命令是在当前进程的子shell进程中执行。
+          例子： echo "$PATH" | tr 'a-z' 'A-Z'
+     tee 命令：
+              tee [OPTION]... [FILE]...
+              从标准输入读入输出到标准输出或文件
+              echo "$PATH" | tr 'a-z' 'A-Z' | tee /tmp/tee.out 
+      练习：将/etc/passwd 文件中的前5行的内容转换为大写后保存至/tmp/password.out文件中
+                 head -5 /etc/passwd | tr 'a-z' 'A-Z' >> /tmp/pass.out
+                将登录至当前系统上用户信息中的后三位信息转换为大写后保存至/tmp/who.out
+                 who | tail -n 3 | tr 'a-z' 'A-Z'  > /tmp/who.out
+  文本操作工具：
+          wc，cut，sort，uniq
+                wc指令：word count 单词统计
+                wc /etc/passwd  行数 单词数目 字节数
+                22   44 1080 /etc/passwd  
+                l line  
+                w words  
+                c
+          cut：对文本进行切割，并还可以命名
+                 cut -f 1 /etc/fstab
+                 cut -d ' ' -f 1 /etc/fstab  按照空格进行切割，并显示第一个字段
+                 cut -d ' ' -f 1,3 /etc/fstab
+                 cut -d ' ' -f 1-3 /etc/fstab
+                 cut -d : -f 1 /etc/passwd 按照:号进行分割并取的是第一个字段
+                 cut -d : -f 1-7 --output-delimiter=hello /etc/passwd  按照符号进行分割，并且对
+                 其进行替换的操作
+                 -d  DELIMITER 指明分隔符
+                 -f   FILEDS
+                         # 第#个字段
+                         #,#,[#] 离散的字段
+                         #-# 连续的多个字段
+                            混合使用 1-3,7
+                  --output-delimiter=hello  指明的字段即可
+            sort：
+                 sort [OPTION]... [FILE]...
+                 sort  -r FILE 逆序的排列
+                 sort FILE 顺序的排列
+                 sort -f  忽略大小写
+                 sort -k 指定字段
+                 sort -t  指定分隔符
+                 sort -t: -k 3 /etc/passwd 按照: 分隔符进行分割并对第三个字段进行排顺序
+                 sort -t: -k 3 /etc/passwd 前一个命令的基础上按照数值的大小进行排序
+                 sort -u 去重显示
+                 history | cut -d ' ' -f 5 | sort -u | uniq -c 去重的操作
+             uniq：去重（是对临近的行进行了比较去重的操作）
+                    连续且完全一样为重复。
+                    uniq -c：对重复的数字进行了统计
+                    uniq -d：仅显示重复的行
+                    uniq -u：仅显示未曾重复的行
+
+                      
+
+           
+          
+               
+                 

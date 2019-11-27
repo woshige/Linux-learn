@@ -1,0 +1,57 @@
+Linux文件系统
+（1）cd指令
+    cd ~ 家目录
+    cd ~用户名 指定的家目录
+（2）list指令
+   ls -a 所有的文件
+   ls -A 不显示 .和..
+   ls /var/log  指定的路径
+   ll 长格式 显示文件的详细的属性的信息
+drwxr-xr-x.  2 root root        6 Sep 13  2016 tmpfiles.d
+第一个字母表示的文件的类型  -,d,b,c,l,s,p 表示的是文件的类型
+rwx：表示的是用户属主权限
+r-x：表示的用户的所属组组的权限
+r-x：其他用户的权限
+2：表示硬链接的次数
+root 文件的属主
+root 文件的属组
+   表示文件大小 单位字节
+ Sep 13  2016 文件最后一次被修改的时间
+ll -h  选项可以将文件的大小表示为人类能够读懂的选项 非精确值
+ll -d /var/log  看的是文件的自身
+ll -r 表示的逆序进行排列
+ls -R 表示的是递归查看
+（2）cat 文本文件的查看器：可能对二进制文件进行损坏，最好不用来查看二进制文件
+  cat -n filename 给文件进行编号
+  cat -E filename 显示的是行结束符号
+（3）tac指令  
+   显示的内容是逆序的
+（4）file 文件类型
+（5）echo 回显命令
+echo -n  不自动进行换行
+echo -e 让转移符生效
+STRING 可以使用双引号和单引号
+单引号：强引用 变量引用不会被替换 echo '$SHELL' 变量不会被替换
+双引号：弱引用 变量引用会被替换 echo “$SHELL" 变量会被替换
+（5）shutdown 命令
+  shutdown now 现在关机
+  shutdown -h now 现在关机
+  shutdown -r 5 五分钟后进行关机
+  shutdown -c 进行取消
+（6）wall 向登录系统的所有人进行通知
+（7）日期相关的命令
+Linux启动的时候从硬件读取到日期和时间的信息，读取完成之后就不和硬件发生关系。
+系统时钟 date
+硬件时钟 clock
+date
+   显示时间 
+    date +%F-%T
+    date +%s 从1970年1月1日到现在经过的秒数
+    设定时间 
+    date 101008082013.08
+hwclock，clock 查询或设定硬件时钟   
+   hwclock -s，-hctosys 系统为准
+   hwclock -w  --systohc 以硬件为准
+cal 日历
+
+   

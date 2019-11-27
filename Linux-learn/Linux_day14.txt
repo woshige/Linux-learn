@@ -1,0 +1,122 @@
+bash的配置文件
+  按照范围进行划分
+       两类：
+               全局配置：
+                       /etc/profile
+                             centos主机的特性： 如果配置文件过大的时候，将配置文件分配为小的配置文件
+                               /etc/profile.d/*.sh   所有的文件
+                       /etc/bashrc  
+               个人配置：
+                       ~/.bash_profile
+                       ~/.bashrc
+   按功能进行划分：
+         profile类：交互式登录shell提供配置
+                    全局：/etc/profile  /etc/profile.d/*.sh
+                    个人：  ~/.bash_profile
+                            功能： 
+                                 （1）用于定义环境变量
+                                 （2）运行命令或脚本
+         bashrc类：为非交互登录shell提供配置
+                      全局：/etc/bashrc
+                      个人：~/.bashrc
+                       功能：
+                              （1）定义别名
+                              （2）定义本地变量
+        shell登录：
+               交互式登录：
+                      直接通过终端输入密码账号
+                      su - username或 su -l Username
+                     
+                     /etc/profile --> /etc/profile.d/*.sh  -->  ~/.bash_profile --> ~/.bashrc -->  /etc/bashrc
+                非交互式登录：
+                       su Username
+                       图形界面下打开的终端：伪终端
+                       执行脚本
+                      ~/bashrc --> /etc/bashrc --> /etc/profile.d/*.sh
+                编辑配置文件定义新配置的生效的方式
+                   （1）新启动shell进程
+                   （2）source（但是有副作用）
+               所有的用户都生效的别名
+                /etc/bashrc
+               所有的用户登录的时候都能显示东西
+               /etc/profile.d/
+               让用户的PATH环境变量的值多出一个路径
+                        export PATH="$PATH路径" 仅仅对当前的shell进程有效
+                       管理员 定义家目录下的bash_profile文件
+                       所有 /etc/profile
+    bash中的算术运算
+            + - * /  %
+            如何实现算术运算：
+               （1）let   var=arithmetic expression
+                        a=1
+                        b=1
+                        let sum=$a+$b
+                        echo $sum      
+               （2）var=$[算术表达式]
+               （3）var=$((1+2)) 
+               （4）命令实现 var=$(expr arg1 arg2 arg3...)
+                    乘法符号需要转义，但是第二种情况是不用转义
+                  bash有内建的随机数生成器：$RANDOM
+                  变量进行自增   var=$[$var+count]
+                  增强型赋值：let var+=1
+                   +=
+                   -=
+                   /=
+                   %=
+                  自增、自减
+ 1、写一个脚本
+      计算 /etc/passwd 文件中的第10个用户和第20个用户id之和
+#!/bin/bash
+id1=$(head -10 /etc/passwd | tail -1 | cut -d: -f3)
+id2=$(head -20 /etc/passwd | tail -1 | cut -d: -f3)
+let sum=$id1+$id2
+echo $sum
+2、写一个脚本 
+      传递两个文件路径作为参数 文件中空白行之和
+#/bin/bash
+num1=$(grep -E '^[[:space:]]*$' $1 | wc -l)
+num2=$(grep -E '^[[:space:]]*$' $2 | wc -l)
+let sum=$num1+$num2
+echo $sum
+3、统计/etc和/var下有多少个一级文件和目录
+
+条件测试：
+   判断某种场景是否满足，需要有测试机制来实现
+      判断 1 > 3  
+       test 1 -gt 3 $?    返回值为不为0表示不成立，返回值为0表示的是成立
+          -gt  大于
+          -lt   小于
+       test expression （前后括号的空格都要存在）
+                [expression]
+                [[expression]]
+     bash的测试类型
+            数值测试：
+                  -gt 是否大于
+                  -ge 是否大于等于
+                  -eq 是否等于
+                  -ne 是否不等于
+                  -lt 是否小于
+                  -le 是否小于等于
+            字符串测试：
+                 == / = 是否等于
+                 > 是否大于
+                 < 是否小于
+                 != 是否不等于
+                 =~ 左侧的字符串是不是能被右边的PATTERN进行匹配，并不是全值的匹配
+                 -z "STRING"   测试字串是否为空 空为真，不空为假
+                 -n "STRING"  测试字符串是否不空，不空为真，空为假 
+                 是不是以h开头
+                 [ "$name"=~^o.* ]
+                 [ "$name"=~^o ]
+                  [ "$name"=~^ob ]
+            文件测试：
+          bash自定义退出码
+              exit [n] 自定义退出状态码
+              一旦脚本中遇到exit命令，脚本会立即退出，终止退出状态取决于exit后的数字
+          如果未给出脚本指定的退出状态码，整个脚本退出的状态码取决于脚本的执行最后一个指令的状态
+练习：接受一个文件路径作为参数
+      如果参数个数小于1，则提示用户至少应该给一个参数并立即退出
+      如果参数的个数不小于1，则显示第一个参数指向的文件中的空白行数
+#!/bin/bash
+[ $# -lt 1 ] && echo "at least one argument" && exit 1
+ls $1

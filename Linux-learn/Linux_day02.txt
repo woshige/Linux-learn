@@ -1,0 +1,60 @@
+1、程序的组成：二进制程序文件、库文件、配置文件、帮助文件
+前两位为二进制文件为可执行文件
+配置文件和帮助文件：可被查看的文件
+2、Linux基础命令
+命令的语法通用的格式 COMMAND OPTIONS ARGUMENTS
+ls -l /var （例子）
+发起命令：请求内核将某个二进制文件转换为一个进程
+程序--> 进程
+静态--> 动态（生命周期）
+命令本身就是一个可执行的文件：二进制格式的文件，有可能会调用库文件（共享库）
+大多数的二进制程序的文件存放在 /bin目录下或者是/sbin /usr/sbin
+普通命令：/bin,/usr/bin,/usr/local/bin
+管理命令 /sbin,/usr/sbin/, /usr/local/sbin
+共享库文件：/lib , /lib64 ,/usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64
+命令必须遵循的格式 .exe .msi ELF（Linux）
+并不是所有的命令都有可执行的文件  命令的分类
+             内置命令（builtin）
+             独立的可执行的文件（文件名即为命令名）
+shell 负责解析用户输入的命令（比如一个ls为什么可以执行）
+环境变量
+PATH环境变量（如果将$PATH中的内容进行了删除的话，就要使用绝对路径）
+/usr/local/sbin:/usr/local/bin:
+/usr/sbin:/usr/bin:/usr/local/erlang20/bin:
+/usr/local/rabbitmq/sbin:/root/bin
+从左向右进行查找
+type ls 查看命令是内置还是外置的
+OPTIONS 代表的是命令的特性
+AGUMENTS 参数可以是多个，最长不超过255个字符
+内部命令帮助 type COMMAND
+外部命令 
+（1）COMMAND --help
+（2）man COMMAND
+man命令
+man1表示的用户命令
+man2表示的是系统调用的指令
+man3表示的是c库的调用
+man4表示的是设备文件和特殊文件
+man数字 COMMAND  指定命令的章节
+whatis 指令 用来查找哪一个章节上有指令的解释 当时whatis是利用的是数据库实现的
+所以要自己手动的进行更新
+翻屏操作
+   空格键 向文件的尾部进行翻屏
+  b：向文件的首部翻屏
+  ctrl + d 向下翻动半个屏幕
+  ctrl + u 向上翻动半个屏幕
+  回车键 向文件的尾部翻动一行
+  k 向文件的首部翻动一行
+  G 跳转至指定行
+  1G 跳转至文件的首部
+文本搜索 
+/ + keyword 从首部向文件的尾部依次查找
+? + keyword 从文件的尾部向文件的首部查找
+以上查找的时候不区分大小写
+-M /PATH/TO/SOMDIR 到指定的目录的位置查找目录手册并打开
+练习
+（1）添加用户gentoo
+（2）添加用户gentoo2使用的shell为/bin/tcsh
+useradd -s /bin/tcsh gentoo2 指定
+tail -1 /etc/passwd
+ 

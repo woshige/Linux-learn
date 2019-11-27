@@ -1,0 +1,126 @@
+练习：创建用户gentoo，附加组为distr和linux，默认的shell为/bin/csh 注释的信息为 "Gentoo Distribution"
+useradd -G distr,linux -s /bin/csh -c "Gentoo Distribution" gentoo
+   组创建：groupadd
+                   groupadd [options] group
+                        -g GID ：指明GID号 /etc/login.defs GID的号的范围
+                        -r 创建系统组：
+                         groupadd -g 3000 test
+                         groupadd -gr 121 redis
+id：显示用户真实有效的用户和组的关系
+            id [OPTION]... [USER]
+               id -u 只显示userid
+               id -g 只显示组id
+               id -G 显示所有的组
+               id -n 显示的是名称，而不是id号
+su：switch user   切换以其他用户身份执行命令
+             su [options...] [-] [user [args...]]
+                          su - slc  登录式切换，读取用户目录的配置文件
+                          su slc 非登录切换，不会读取用户目录的配置文件（完全切换）
+                          su - 用户  COMMAND
+                          su - slc -c 'echo $PATH'
+                    选项：
+                            -l：相当于是登录式切换
+                            -s：使用指定shell切换用户，不使用用户的默认shell
+                            -g：指明基本组
+用户属性修改
+        usermod 
+                      -u UID
+                      -g GID 基本组
+                      -G   GROUP1[,GROUP2,...[,GROUPN]]]     附加组，新增的时候，原来的附加组会被替换
+                       若保留的话使用 -a选项。
+                      -s 新的默认的shell 
+                      -c 新的注释信息
+                      -d 新的家目录   原有的家目录的文件不会同时移动至新的家目录，要使用-m选项。
+                        如果不使用-m选项，发现登录的时候是不成功的，所以-d选项是不会将文件移动到
+                       家目录下的。
+                      -l  新的登录名
+                      -e  YYYY-MM-DD 密码过期时间
+                      -L Lock 锁住当前的用户  密码之前加了!号
+                      -U Unlock 解锁用户
+passwd 修改密码
+        passwd username  修改用户密码，root有权限
+        pass 修改当前自己的密码（如果当前用户没有密码的时候，是不允许用户自己修改密码的，要root先
+给定一个密码）
+                passwd [-k] [-l] [-u [-f]] [-d] [-e] [-n mindays] [-x maxdays] [-w warndays] [-i inactivedays] [-S] [--stdin]
+       [username]
+        选项：
+                 -l 锁定用户
+                 -u 解锁用户
+                 -n 最短使用期限
+                 -x 最大使用期限
+                 -w 提前多少天提示修改密码
+                 -i 密码过期之后还能允许多长的时间修改密码
+                 -e 过期期限 立即过期
+                 -d 删除
+                 --sdtin  从标准输入接收密码   echo "slc19980514" | passwd --stdin slc &> /dev/null
+                                                   echo $?
+                   /dev/null bit buckets 位桶 一直吞
+                   /dev/zero 一直吐
+删除用户 userdel
+              userdel [options] LOGIN                         
+                         -r 删除用户家目录
+组信息修改：
+       groupmod [options] GROUP
+                -n group_name 新名字
+                -g GID 新的gid
+组删除
+    groupdel 组名
+组密码添加： gpasswd [option] group
+     gpasswd  test  修改test的组密码
+            -a user 将user添加至指定的组中     gpasswd -a slc test
+            -d 删除用户slc的test附加组    gpasswd -d slc test
+            -A  user1,user2 设置管理权限的用户列表   gapasswd -A jerry,tom 在sudo文件中
+      组密码的作用？用来给用户临时切换组 newgrp group_name 命令 用完之后要退出来的话
+      使用exit命令。
+pwck 
+       检查密码文件的完整性    
+       pwck [options] [passwd [ shadow ]]
+修改用户属性 ：chage
+                    chage [options] LOGIN
+                     -m  最小使用期限
+                     -d   最近一次修改密码的时间
+                     -E   账号的使用期限
+                     -i    密码的活动期限
+                     -w  警告期限               
+chfn：修改注释信息
+             chfn [-f full-name] [-o office] ,RB [ -p office-phone] [-h home-phone] -u] [-v] [username]
+chsh：修改shell版本
+权限管理：
+             对三种对象进行定义  r 可读  w 可写  x 可执行 4 3 1 （八进制表示）
+                      user：
+                      group：
+                      other：            
+             文件：r：使用文件查看器类的工具获取内容
+                      w：修改其内容
+                      x：可以把文件提请内核启动一个进程
+              目录：r：可以查看目录内的文件列表
+                       w：可以创建和删除此目录内的文件
+                       x：可以使用ls -l 查看此目录中的文件列表 可以cd进入
+            例如：640    rw-r-----
+                      755    rwxr-xr-x
+                      chmod
+                               八进制修改：
+                                               chmod 640 a.txt 文件的权限为 rw-r-----
+                                               chmod 644 test  只修改目录的权限 rw-r--r--
+                                               chmod -R 644 test
+                                分开写：后边带的是权限
+                                         u=
+                                         g=
+                                         o=
+                                         ug= ug都等于
+                                         u=,g=
+                                         a= 所有都等于
+                                         u+ 
+                                         u-
+                                         a+
+                                         a-
+                                 参考权限：chmod --reference ./test.txt ./a.txt   让./test.txt 和 ./a.txt 的权限一样
+修改文件的属主和属组
+                chown tom a.txt 将tom改为a.txt的属主
+                chown :root fstab  改属主
+                chown root:root fatab 改变的是属主和属组
+                -R 递归进行改变
+umask值：文件或目录创建时的遮罩码
+       FILE:666 - umask值  如果某类的用户权限减得得到的值中有执行权限的话，会+1
+       DIR:777 - umask值
+                               

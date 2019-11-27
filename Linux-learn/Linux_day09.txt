@@ -1,0 +1,78 @@
+用户和组管理
+   资源分派：
+         Authentication：认证 识别用户的账号和密码
+         Authorization：授权 
+         Accounting: 审计
+                  
+         token：只有密码没有用户名
+         identity：{username,password}
+Linux用户：
+         管理员：root id 0
+         普通用户：1-65535（两个字节，企业版的为32位）
+                       系统用户 1-499 为守护类（服务类）进程获取系统资源而完成权限分配的。
+                       1-999（centos7）
+                       登录用户 500-65535 交互式登录使用
+         Linux组：GroupName/GID
+                       管理员组：root，0
+                       普通组：
+                                 系统组：1-499  1-999（centos7）
+                                 普通组：500-65535（1000开始）
+         Linux的安全上下文：
+                       运行中的程序：进程（process）
+                               以进程发起者身份运行
+                                      root:cat
+                                      slc:cat 权限不够
+         Linux组的类别：每个用户都要以一个组（可以理解为家庭）进行创建。
+                        用户的基本组（主组）：创建的时候属组为主族
+                                 组名同用户名且仅包含一个用户：称之为私有组（创建用户的时候，如果没有指定组
+                                   的时候，会创建一个与用户名相同的私有组）
+                        用户的额外组（附加组）：判断是不是对文件有权限的时候并不是通过主组。
+配置文件：
+      /etc/passwd 保存用户及其属性信息（名称，UID，基本组ID）
+      /etc/group 组及其属性信息
+      /etc/shadow 用户密码和相关的属性
+      /etc/gshadow  组密码及其相关属性
+                /etc/passwd
+                   name:password:UID:GID:GECOS:directory:shell 
+                   用户名:密码占位符:UID:GID（用户基本组id）:GECOS（联系电话等信息）:用户主目录:默认的shell
+                /etc/group 
+                  group_name:passwd:GID:user_list
+                  组名:组密码:GID:以当前组为附加组的用户列表，分隔符为逗号
+                /etc/shadow 
+                   登录名:加密了的密码:最近一次密码改变的时间:密码最小使用期限:密码的最大使用期限:密码警告期限:密码禁用期:账号的过期日期
+                         加密机制（单向加密）：
+                            md5
+                            sha1
+                            sha224：224位
+                            sha256
+                            sha512
+                    为了防止出现两个用户相同的密码时候，在密码中加入了杂质，但是用户下次登录的时候
+                    怎么验证？可以将加密后的密码在每次登录的时候加入在密码中。
+                    $6$GzcBvQuVPv5FB4cf$L1n.b1Thcu6qOnrNojTIaEAo4Ak33PoMjFr/Ncf3iuB29Gaf
+                 7lgcn2bP9f9ttLlhxlePvPP4ostFfUNUO2pG5.
+                      6表示的是sha512加密算法
+                      $GzcBvQuVPv5FB4cf$ 杂质（也可以叫做盐值）
+                      验证：
+                                 useradd tom
+                                 useradd jerry
+                                 echo "redhat" | passwd --stdin tom
+                                 echo "redhat" | passwd --stdin jerry
+用户创建  
+        useradd [options] LOGIN 
+               useradd slc
+               useradd -u 指定uid号   （-o 可以使用相同的uid）
+                                 /etc/login.defs 定义了uid的最大和最小的值
+                                 使用的策略是最近的一个id开始自增
+               useradd -g 用户的组名和号码（已经存在的），如果没指定，就会给当前的用户创建一个基本组
+               useradd -c 用户详细（注释）信息，是用户的简短描述
+               useradd -d /home/dir  用户名 指定家目录的位置  未定义的时候是在/home/用户名
+               创建用户的时候，会从 /etc/skel/ 目录下复制文件到 用户的家目录下，如果创建指定的目录是
+               实现存在的话，用户信息是不完整的。
+               useradd -s shell环境     默认的shell  /etc/default/useradd 
+                                           可用的列表在/etc/shells 
+               useradd -G GROUP1[,GROUP2,...[,GROUPN]]]   指定附加组
+               useradd -D 修改默认选项
+                         useradd -D -s /bin/tcsh（其实修改的是 /etc/default/useradd配置文件中的值）
+               useradd -r 创建系统用户
+                          
+                         
