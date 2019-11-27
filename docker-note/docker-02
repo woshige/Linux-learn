@@ -1,0 +1,43 @@
+1、docker加速器
+   阿里云镜像加速：
+   对于1.10.0以上的版本进行加速的时候 
+   直接对  /etc/docker/daemon.json 进行修改
+   sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://3wootoil.mirror.aliyuncs.com"]
+}
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+2、docker run hello-world
+   就是按照hello-world的镜像的模板进行创建一个实例容器
+3、docker的底层原理和机制
+   docker的工作原理：是一个cs结构，可以将应用放在docker上，其他的客户端访问的时候就是在访问docker上的应用。
+   docker有更小的抽象层，减少了对硬件资源的虚拟化，所以体积更小。使用的是宿主机的操作系统，但是虚拟机加载的时候，
+是要对自己的操作内核进行加载，所以docker加载的速度是更快的。
+4、docker命令
+   docker version 版本
+   docker info  docker容器的信息
+   docker --help 或者 man docker  获取docker命令的帮助
+   -d 后台运行
+   .... 
+   docker images 本地的docker镜像
+       -a  列出本地所有的镜像，包括中间镜像层（千层饼）
+       -q  显示镜像的id
+       --digests  摘要
+       --no-trunc 完全显示id号
+   docker search  搜索镜像名
+       -s number  点赞数在指定的数目以上
+       --no-trunc 不要省略
+       --automated 只列出自动构建的镜像
+   docker pull 下载镜像 
+        等价于  docker pull name:latest
+   docker rmi name
+        默认的是删除 docker rmi name:latest
+        -f 对镜像进行删除 删除的是单个
+   docker rmi -f nginx hello-world  
+         删除的是多个
+   docker rmi -f $(docker images -qa)
+         删除本地的所有的镜像
+
