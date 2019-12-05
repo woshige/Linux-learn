@@ -1,0 +1,23 @@
+1、以后台的方式，/bin/sh的shell来执行脚本
+   docker run --name centos3 -d centos /bin/sh -c "while true;do echo hello;sleep 2;done"
+2、docker logs
+   docker logs -t id  按照时间进行查看日志
+   docker logs -f id  按照日志进行追加的方式
+   docker logs -t -f --tail 3 id 在上面的两条的基础上，增加了显示最后三条的限制 
+3、容器内的进程信息
+   docker top id 因为可以将容器看为一个简易版的Linux 
+4、查看容器中的细节
+   docker inspect id
+5、docker attach id
+   进入容器
+6、docker exec -it id COMMAND
+   与docker attach的命令相比，既可以执行COMMAND又可以进入docker中的容器。且exit命令执行的时候，不会退出。
+7、从容器内拷贝文件到主机内
+   docker cp id:source-path target-path 
+8、运行tomcat
+   docker run --name tomcat1 -it -p8080:8080 tomcat
+   使用-P ：指定的端口号是随机的
+9、docker commit提交
+   docker commit -a='slc' -m='tomcat without docs' tomcat1 slc/tomcat-without-docs:1.2
+10、docker后台运行tomcat  
+   docker run -d -p 6666:8080 tomcat
