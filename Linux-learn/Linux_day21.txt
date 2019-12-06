@@ -5,7 +5,7 @@
    linux系统使用其他的磁盘 需要进行挂载，就是一个文件系统的访问接口。
    解除这个管理系统的关联关系的过程称之为卸载。
    把设备挂载至挂载点   Mount  Point
-    mount
+    mount：显示当前系统已挂载的所有的设备。
    卸载时：可使用设备，也可以使用挂载点
     unmout 
 挂载点下的原有的文件在挂载完成之后，会临时进行隐藏，所以挂载的时候，使用空目录。
@@ -13,19 +13,65 @@
  mount 
 mount [-fnrsvw] [-t vfstype] [-o options] device dir
           device 要挂载的设备
-                     设备文件
+                 四种方式
+                    设备文件
                          /dev/sda5 /dev/sda2
                      卷标
-                        -L MYDATA   
-                     uuid -U uuid   即使设备很多，不会产生冲突。
+                        -L 'MYDATA'  例如 -L 'MYDATA'   
+                     uuid -U uuid   好处：因为uuid是全局唯一的，即使设备很多，不会产生冲突。
                      伪文件系统名称  proc  sysfs devtmpfs  configfs
           dir
-                事先存在，建议使用空目录
+                事先存在，建议使用空目录（/mnt临时性文件系统 /media便携式文件）
                      -t  vsftype 指定要挂载的设备文件上的系统类型
                      -r readonly  只读挂载
                      -w read and write 读写挂载
-                     -n 不更新/etc/mtab
-                     -表示自动挂载所有支持自动挂载的设备（自定义在了/etc/fstab中，且挂载选项中有自动挂载）
+                     -n 不更新/etc/mtab（mount 指令就是将  /etc/mtab中的内容中进行了读取
+                      但是如果是进行了挂载的话，参数会显示在 /etc/mtab）
+                     -a 表示自动挂载所有支持自动挂载的设备（自定义在了/etc/fstab中，且挂载选项中有自动挂载）
+                     -L  'lable' 以卷标格式指定挂载设备
+                     -U 'uuid' 以指定的uuid指定要挂载的设备
+                     -B --bind  实现挂载目录到另外一个目录中
+              进程正在使用被挂载的目录时候，是无法卸载的。
 
-                      
-                     
+                -o options  挂载文件系统的选项
+                     async ：挂载时使用异步模式
+                     sync   ：同步模式，数据可靠性高，但是性能差
+                     atime/noatime ：每一次访问的时候都会访问时间戳/不进行更新（包含目录文件）
+                     diratime/nodiratime ：目录的访问时间戳
+                     auto/noauto 是否支持自动挂载
+                     exec/noexec 是否支持将文件系统上应用程序运行为进程
+                     dev/nodev  是否支持在系统上使用设备文件
+                     suid/nosuid
+                     remount 重新挂载
+                     ro 只读
+                     rw 读写
+                     user/nouser  是否允许普通用户挂载此设备
+                     acl  是否启用此文件系统上的acl功能（访问控制列表）
+                    上述选项可多个同时使用  彼此使用,号分割，尽量禁止普通用户进行挂载
+                               rw,suid,dev,exec.auto,nouser,and async
+                 卸载命令
+                       umount DEVICE
+                       umount  MOUNT_POINT
+                  查看正在访问指定文件系统的进程
+                    fuser -v /mydata
+                    fuse -km /mydata （干掉使用的进程）
+          挂载启用交换分区
+                  启用：swapon
+                             swapon [OPTION] ... [DEVICE]
+                              -a 激活所有的交换分区
+                              -p PRIORITY  指定优先级
+                  禁用：swapoff
+          内存空间使用状态
+                 free [OPTION]  
+                  -m  MB显示
+                  -g   GB显示
+           文件系统空间占用等信息查看工具
+                df  -h  human-readable
+                df  -i  inode信息   instead of blocks
+                df  -P, --portability  不显示多行
+                              use the POSIX output format
+           查看某目录以及目录下的所有得文件的占用的状态
+                 du：   
+                       du [OPTION] ... DIR
+                       du   /etc/
+                       du -sh /etc/ 查看某个文件目录的大小
