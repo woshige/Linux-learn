@@ -1,0 +1,54 @@
+btrfs文件系统
+		   centos7上被称为技术预览版本（在生产环境中已经开始使用）
+		   btrfs(B-Tree Butter Better) Fs ：开源的文件系统，写时文件复制系统
+		   主要是用来取代ext3/ext4 ，xfs
+		   增加了快照的功能（ext文件系统没有的，快照的快照），对某个文件进行快照。
+		   内置的支持RAID功能
+
+
+  核心特性：
+       多物理卷支持：btrfs一个文件系统可由多个文件物理卷组成，支持RAID，联机支持添加，移除，更改操作。
+       Cow机制：写时复制机制：修改的时候先去复制一份，然后对其进行了修改，如果修改失败的话，也可以进行恢复。
+                复制、更改、替换指针，而不是就地的去更改。
+       数据及元数据校验码机制：checksum机制
+       子卷：sub_volume
+       支持快照：比LVM上增强的一点是可以支持快照的快照。
+       透明压缩：写的时候是底层进行了压缩，但是程序员并不知情。读的时候有一个解压缩的过程。
+                 所以，比较节省空间。
+  创建btrfs：
+      mkfs.btrfs：
+               -l label
+               -d 数据存储时类型  raid0, raid1, raid5, raid6, raid10 or  single
+               -m 元数据存储的类型 raid0, raid1, raid5, raid6, raid10 or  single ,dup
+               -O 格式化时指定的类型
+                  list-all 并不是所有的内核都支持
+          实验：vmware新增三个硬盘
+                其中将两个硬盘格式化成btrfs文件系统
+                mkfs.btrfs  -L mydata /dev/sdb /dev/sdc
+           查看创建完的信息：
+                显示所有的信息：btrfs filesystem show 
+                显示已挂载的信息：btrfs filesystem show --mounted 
+                显示所有：btrfs filesystem show --all-devices
+                显示特定：btrfs filesystem show  /dev/sdb
+            挂载：
+                 mount -t btrfs  /dev/sdb /mydata
+                 mount -t btrfs  /dev/sdc /mydata
+            透明压缩功能：
+                 mount -o compress={lzo|zlib}  /dev/sdb /mnt/mydata
+            btrfs进行缩减大小：
+                 btrfs filesystem resize -2G /mnt/mydata/
+                 btrfs filesystem resize max /mnt/mydata/
+            新添加物理卷：
+                 btrfs device add /dev/sdd /mnt/mydata/
+            btrtfs在多个或者单个的chunk上进行平衡：
+                 btrfs balance status /mnt/mydata
+                 在线进行平衡：
+                 btrfs balance start /mnt/mydata
+                 平衡暂停
+                 btrfs balance puse /mnt/mydata
+                 继续
+                 btrfs balance resume /mnt/mydata
+            移走设备：
+                 btrfs device delete /dev/sdb  /mnt/mydata
+            格式化后修改数据级别或者是元数据级别：
+                 btrfs balance start /mnt/mydata
