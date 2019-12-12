@@ -1,0 +1,91 @@
+文件挂载的配置文件  /etc/fstab
+   每行定义一个要挂载的文件系统（除了/以外的其他的文件系统）
+   6个字段  
+          要挂载的设备或者是伪文件系统     挂载点  文件系统类型  挂载选项   转储频率  自检次序
+            要挂载的设备或伪文件系统：
+                    设备文件 、LABEL(LABEL="") 、UUID(UUID="")、伪文件系统 （proc  sysfs）
+            挂载选项：
+                   defaults
+                   acl
+            转储频率：
+                   0不做备份
+                   1 每天转储
+                   2每隔一天转储
+            自检次序： 
+                    0 不自检
+                    1 首先自检  rootfs才用1
+                     ...
+文件系统上其他的深入的概念：
+             文件系统：数据和元数据
+      super block ：描述整个文件系统多少个块组、inode 的使用情况、block的使用情况 、上次挂载时间
+             就是tune2fs -l /dev/sda
+           dumpe2fs  /dev/sda1
+           能显示super block的信息，还能显示块组的信息
+      每一个块组中的信息，由块组中的一个块来进行存储（校验信息、inode使用情况）
+       inode  index node 索引节点 （大小，时间戳，属主，属组，权限信息，但是不包含文件名）
+             地址指针：
+                     直接指针：
+                     间接指针：
+                     三级指针：
+             inode bitmap：对位标识每个inode空闲与否的信息（索引的索引）       
+     如果要找  /var/logs/messages 
+      目录的作用？
+          目录在系统上也是一个文件，按名找，然后对应的名会找到相应的inode号。 
+       首先 / 的inode号是知道的，可以通过 inode号找到相应的磁盘块，找到var 的inode号，
+        然后找到相应的指向的元数据，然后找到var 的磁盘块，找到 logs的inode号....
+        然后找到对应的元数据区，通过inodetable中的号，找到对应的block，找到messages
+         
+    硬链接：就是两个文件路径，指向了同一个inode编号。删除了一个路径就是删除了一个inode计数。
+      inode计数为0的时候，以后就可以使用，对应的block上对应的位图为0，下次的时候覆盖就行。
+      所以也是可以恢复的。
+               硬链接的作用是允许一个文件有多个有效的路径名，防止误删。
+               目录创建硬链接会造成循环引用。
+                如果存在目录/root/test/a 和 目录/root/app/b 
+                如果a是app目录的hard link, b是test 的hard link, 这时就形成了循环引用，
+                假设可以这样设定，那么/root/test/a 既然是/root/app/目录，里面肯定有b, 
+                这时可以访问 /root/test/a/b ，此时你发现b又是/root/test/的hard link 那么b里肯定有a，
+                这时你课可以访问/root/test/a/b/a，
+                以此循环/root/test/a/b/a/b/a/b/a/b/.... 难道你不觉得这样有问题吗？
+               硬链接是不可以跨分区的，inode是不可以跨分区的。
+    软链接：
+                 /etc/abc -->   /usr/local/etc/abc
+                 就是指向的是一个字符串，没有占用磁盘块（只占用了inode），所以找寻的是
+                 是从字符串的路径从新开始寻找。所以是不同的inode，inode指向的是字符串 
+                 inode的是不同的
+                  有点类似于windows上的快捷方式     
+                 可以对目录、可以跨分区、指向的是另一个文件的路径字符串，不会增加inode的引用计数
+   ln [-sv] src dest
+          -s symbolic link
+          -v verbose
+  文件管理操作对文件的影响
+          文件删除：
+                inode编号引用计数为0等
+          文件复制：
+          文件移动：
+练习：
+1、创建一个20G的文件系统  ，卷标为TEST ，块大小为2048，
+文件系统为ext4，要求此分区开机后自动挂载至 /testing 目录  默认,acl       
+2、创建一个5G的文件系统，卷标为HUGE，要求开机自动挂载至/mogdate目录，文件系统为ext
+3
+3、写一个脚本，完成如下功能
+   （1）列出当前系统的识别到的所有的磁盘设备
+   （2）如果磁盘数量为1，则显示其空间的使用信息：
+            否则，显示最后一个磁盘上空间的使用信息。
+bash脚本编程之用户交互
+        read name
+        read a b c   按照位置进行存储，如果少了，按照位置进行缺省，如果多了，全部给最后一个。
+        echo -n   不换行
+        read -p "enter your name" -t 5 name  不换行
+        [ -z "$name"] && name="slc"
+     bash -n /path/to/some_scripts  检查脚本的语法错误
+     bash -x /path/to/some_scripts  调试执行
+#!/bin/bash
+read -p "please enter your diskname" -t 10 diskname
+[ -z $diskname ] && echo "the diskname can not be null" && exit 1
+if fdisk -l | grep "Disk $diskname" &> /dev/null;then
+   fdisk -l $diskname
+else
+   echo "wrong disk name"
+   exit 2
+fi
+            

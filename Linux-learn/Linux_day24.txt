@@ -1,0 +1,101 @@
+LVM  Logic Volume Manager
+     dm模块：device mapper 设备映射组件 将一个或者多个的底层的块设备组织成一个逻辑设备。
+     将pv（physical volume）抽象成一个组VG（volume group），在VG上的基础上继续抽象成了一个逻辑卷（Logic Volume） LV
+     将LV抽象成一个个的(LE Logical Extend)
+     将VG抽象成一个一个的PE（Physical Extend），PE的大小取决于VG的划分，不同的VG划分的是不同的。
+     优点：LV的大小可以是动态的扩容或压缩的，而且不会破坏数据。
+     缺点：一旦数据发生了损坏，但是不好恢复。
+     位置：
+        真正： /dev/dm-#
+         /dev/mapper/VG_NAME-LV_NAME <-- /dev/vol0/root
+         eg: /dev/mapper/vol0-root <-- /dev/VG_NAME/LV_NAME
+    pv管理工具：
+          pvs：简要显示
+          pvdisplay：详细信息   pvdisplay /dev/sda2
+          pvcreate：初始化一个LVM的硬盘
+                 -v 可视化
+                 例如：在一个主分区上进行创建   pvcreate  /dev/sda3  
+          pvremove：移除PV   
+                 pvremove  /dev/sda3
+    vg管理工具：
+      vgcreate  [--addtag  Tag]  [--alloc AllocationPolicy] [-A|--autobackup {y|n}] [-c|--clustered {y|n}]
+       [-d|--debug]  [-h|--help]  [-l|--maxlogicalvolumes   MaxLogicalVolumes]   [-M|--metadatatype   type]
+       [-p|--maxphysicalvolumes   MaxPhysicalVolumes]  [--[vg]metadatacopies  NumberOfCopies|unmanaged|all]
+       [-s|--physicalextentsize PhysicalExtentSize[bBsSkKmMgGtTpPeE]]  [-t|--test]  [-v|--verbose]  [--ver-
+       sion] [PHYSICAL DEVICE OPTIONS] VolumeGroupName PhysicalDevicePath [PhysicalDevicePath...]
+             创建： vgcreate myvg /dev/sda3  默认的PE大小为4MB，-s可以自己指明
+
+      vgextend：扩展   vgextend myvg /dev/sda5
+      pvmove  ：  pvmove /dev/sda5  将PV进行移动
+      pvreduce : pvreduce myvg  /dev/sda5 从VG开始移走
+    lv管理：
+        lvdisplay：显示逻辑卷的详细的信息   lvdisplay  /dev/VolGroup/lv_root  或者   lvdisplay /dev/mapper/VolGroup-lv_root
+        lvcreate：创建LV
+                  lvcreate -L [MGTmgt] -n name  VolumeGroup
+                           -L 指定的大小，必须卷组有指定的空间使用  
+                              指定的大小也不是完全的正确的，取决于PE的大小 
+        对创建的LV进行格式化：  mke2fs -L MYLV -b 1024 -t ext4 /dev/mapper/myvg-mylv
+        再对格式化的硬盘进行挂载：  mount  /dev/mapper/myvg-mylv  /mnt/myback
+                                    mount -U 84b384a1-6a2f-4f9f-812f-fa908ba8a732  /mnt/myback/
+        lvextend：对逻辑卷进行扩展
+                  lvextend -L [+][MGTmgt] /dev/myvg/mylv
+                  对逻辑卷进行了扩展之后要对文件系统进行扩展
+                  resize2fs /dev/mapper/myvg-mylv
+        删除逻辑卷：
+                  lvremove /dev/mapper/myvg-mylv
+        缩减逻辑卷：
+                   umont mount_piont
+                   e2fsck -f /dev/VG_NAME/LV_NAME
+                   resize2fs  /dev/VG_NAME/LV_NAME #{mgtMGT}
+                   lvreduce   -L #{MGTmgt} /dev/VG_NAME/LV_NAME 
+        快照：snapshot  (VG预先的留了一定的空间)
+              对元数据创建了一个监视器，快照是通过快照卷实现的。快照卷是指向同一个存储空间的独立的卷。
+              任何时刻，某个文件要发生变化了，先把文件复制到的快照卷上，如果没变化的就不做任何事情。
+              访问的时候，变换的访问本地，没变化的访问原卷。新建立的数据（差异备份，或者增量备份）。
+              快照卷只读。
+              lvcreate -L #{MGTmgt} -p r -s -n snapshot_lv_name original_lv_name   （创建卷当时的时候就已经做了快照）
+              lvcreate -L 512M -s -p r -n mylv_snapshot /dev/myvg/mylv
+
+    练习：1、创建一个至少有2个PV组成的大小为20G的名为testvg的VG，要求PE的大小为16M，而后在卷组中创建大小为
+          5G的逻辑卷testlv，挂载至/users/
+          2、新建用户archlinux要求其家目录为/users/archlinux 切换此用户，将/etc/pam.d的文件复制到自己的用户的家目录
+          3、扩展testlv到7G且archlinux的文件不能丢失
+          4、缩小到3G，同样。
+          5、对testlv创建快照，并基于快照对其记性备份，验证快照的功能。
+
+  文件系统挂载：
+       如何挂载光盘设备
+               光盘  
+                   IDE： /dev/hdc
+                   SATA: /dev/sr0
+                   符号链接文件：
+                         /dev/cdrom
+                         /dev/cdrw
+                         /dev/dvd
+                         /dev/dvdrom
+
+
+                挂载  mount -r /dev/cdrom /media/cdrom
+                      umount   /dev/cdrom
+       dd命令：
+            convert and copy file 文件的转换和复制工具（通过块接口进行复制）
+            dd if=/PATH/FROM/SRC to=/PATH/TO/DIST  
+               指定复制的字节数
+                      bs = #  block size 复制单元大小
+                      count = #  复制多少个bs
+                      dd  if=/etc/fstab to=/tmp/fstab bs=1 count=100
+
+            复制很底层，所以比cp效率更加的高。
+            磁盘复制
+                  dd if=/dev/sda of=/dev/sdb
+            复制MBR 
+                  dd if=/dev/sda of=/tmp/mbr.bak bs=512 count=1
+            快速的清除MBR
+                  dd if=/dev/zero of=/dev/sda  bs=512 count=1
+            快速的清除BootLoader
+                  dd if=/dev/zero of=/dev/sda  bs=256 count=1
+
+
+    特殊设备
+         /dev/zero  吐零
+         /dev/null  数据黑洞
