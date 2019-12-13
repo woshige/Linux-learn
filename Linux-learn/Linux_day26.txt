@@ -50,5 +50,34 @@ btrfs文件系统
                  btrfs balance resume /mnt/mydata
             移走设备：
                  btrfs device delete /dev/sdb  /mnt/mydata
+                 btrfs在文件系统上移动设备的时候，会自动的将设备上的数据进行移动。
             格式化后修改数据级别或者是元数据级别：
                  btrfs balance start /mnt/mydata
+                    -d 修改数据的
+                    -m
+                    -s
+                 btrfs  balance start -dconvert=raid1 /mnt/mydata
+            创建子卷：
+                 显示所有的子卷：
+                           btrfs subvolume list /mnt/mydata/
+                 创建子卷：
+                           btrfs subvolume create /mnt/mydata/logs
+                 挂载子卷：
+                         如果挂载父卷的话，子卷也会被挂载
+                         只挂载子卷： mount -o subvol=logs /dev/sdb /mnt/mydata
+
+                 删除子卷：
+                         btrfs subvolume delete /mnt/mydata/logs
+            对卷创建快照：
+                      btrfs subvolume snapshot /mnt/mydata/cache_snapshot
+            删除子卷快照：
+                      btrfs subvolume delete /mnt/mydata/cache_snapshot
+            对ext4的文件系统进行格式的转换
+                      mke2fs -t ext4 /dev/sdb1
+                      mount /dev/sdb1 /mnt/mydata1
+                      umount /mnt/mydata1
+                      btrfs-convert /dev/sdb1
+                      btrfs filesystem show 
+
+            回滚：
+                      btrfs-convert -r /dev/sdb1
