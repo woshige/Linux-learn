@@ -1,0 +1,179 @@
+压缩、解压缩以及归档工具
+   compress/uncompress：.Z
+   gzip/gunzip：.gz
+   bzip2/bunzip2：.bz2
+   xz/unxz：.xz
+   zip/unzip：
+   tar、cpio：
+       1、gzip/gunzip：不能压缩目录，对目录中的文件进行递归的压缩
+           gzip filename （默认的是将原来的文件进行了删除）
+               -d：解压缩 == gunzip filename
+               -c：将结果输出至标准输出，可以保留源文件
+                   gzip -c filename > filename.gz
+               -#：压缩比
+                   gzip -c -9 filename > filename.2.gz
+           gunzip filename （默认的是将原来的.gz的文件进行了删除）
+           zcat：不用展开压缩来进行显示其文本文件的内容
+       2、bzip2/bunzip2/bzcat：
+              .bz2  在压缩的算法上是比gzip更加的高效
+            bzip -k filename 
+              -c：标准输出，保留源文件
+              -d：解压缩
+              -#：压缩比
+              -k：keep，不删除源文件
+       3、xz/unxz：
+            压缩比以上的工具更加的大
+            xz [OPTION]... FILE...
+                -#：
+                -k:
+                -r：对文件夹进行压缩
+            xzcat：不展开显示.xz的文本
+       4、zip/unzip
+            对文件进行压缩归档：
+                         zip pam.d.zip pam.d.origin/*
+       5、tar工具
+              tar [OPTION]...
+                 1、创建归档  
+                       tar -cf  /path/to/somefile.tar file...
+                 2、查看归档中的文件列表：
+                       tar -t -f /path/to/filename.tar
+                 3、展开归档
+                       -C 指定到指定的目录
+                       tar -x -f /path/to/filename.tar -C /path/to/dir
+           注意：归档的文件会比原来的文件大，比如箱子+10KG，比10KG大。
+           -j bzip2  -z gzip -J xz
+
+           在进行解压缩的时候对文件可以不见-j -J -z 选项，主要是在创建的时候用的。
+  bash脚本编程
+       CONDITION：
+            bash命令：
+                用命令的执行的状态结果
+                     成功  true
+                     失败  false
+                     成功失败的命令取决于用到的命令
+       if
+	      单分支
+	          if CONDITION;then
+	             if-true
+	          fi
+	      双分支：
+	          if CONDITION;then
+	              if-true
+	          else
+	              if-false
+	          fi
+	      多分支：
+	          if CONDITION1;then
+	              if-true
+	          elif CONDITION;then
+	              if-true
+	             ....
+	          else
+	             all-false
+	          fi
+
+	          逐条件进行判断
+	       示例：用户输入文件的路径，通过脚本来判断文件的类型。
+	            		#!/bin/bash
+						read -p "Please enter a file path:" filename
+						if [ -z "$filename" ];then
+						    echo "Usage:the file path is empty" 
+						    exit 2
+						fi
+						if [ ! -e "$filename" ];then
+						   echo "Usage:file isn't exits"
+						   exit 3
+						fi
+						if [ -f "$filename" ];then
+						   echo "this is a normal file"
+						elif [ -d "$filename" ];then
+						   echo "this is a directory"
+						elif [ -L "$filename" ];then
+						   echo "this is a symbolic link"
+						else
+						   echo "this is other file type"
+						fi
+    循环机制：
+          for  while  util
+          循环体：要执行的代码可能要执行N遍
+                     进入条件：
+                     退出条件：
+                for循环：
+                      格式：for 变量 in 列表;do
+                               循环体
+                            done 
+                      执行机制：以此将列表中的元素复制给前面的变量名，每次复制后即执行一次循环体，直到列表
+                                中的元素耗尽。
+                      示例：
+                          添加十个用户分别是user1...user10，密码是用户名。
+                            #/bin/bash
+							if [ ! $UID -eq 0 ];then
+							   echo "the user must be root"
+							fi
+							for i in {1..10};do
+							    if id user$i &>/dev/null;then
+							        echo "the user exits"
+							    else
+							       useradd user$i
+							       if [ $? -eq 0 ];then
+							       echo "user$i" | passwd --stdin user$i &> /dev/null
+							       echo "the user$i add has finished"
+							       fi
+							    fi
+							done
+
+			        列表的生成方式：
+			           （1）直接给出列表
+			           （2）整数列表
+			                (a)   {start..end}
+			                (b)   $(seq [start [step]] end)
+			                     seq  start end 
+			                     seq  start step end
+			                (b) 返回列表的命令
+			                      例子：  
+							        for file in $(ls /var);do
+									     if [ -f /var/$file ];then
+									        echo "Common file"
+									     elif [ -d /var/$file ];then
+									        echo "Directory"
+									     elif [ -L /var/$file ];then
+									        echo "Symbolic file"
+									     else
+									        echo "Other file type"
+									     fi
+									done
+
+							        例子：
+							            #!/bin/bash
+										#
+
+										declare -i listen=0
+										declare -i estab=0
+										declare -i other=0
+
+										for state in $(netstat -tan | grep "^tcp\>" | awk '{print $NF}');do
+										       if [ $state == "LISTEN" ];then
+										           let listen++
+										       elif [ $state == "ESTABLISHED" ];then
+										           let estab++
+										       else
+										           let other++
+										       fi
+										done
+										echo "LISTEN: $listen"
+										echo "ESTABLISHED: $estab"
+										echo "OTHER: $other"
+     1、练习一：
+           /etc/rc.d/rc3.d 目录下有多个K或者S开头的文件
+                K开头的文件：文件名+stop
+                S开头的文件：文件名+start
+     2、练习二：
+           利用ping命令来对主机进行ping，在线的输出在线，不在线的输出不在线
+              192.168.21.0-254
+
+
+
+
+
+
+
