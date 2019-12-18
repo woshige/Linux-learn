@@ -1,0 +1,52 @@
+Linux程序包管理（2）
+   Centos ：yum dnf
+
+
+     yum的工作原理：
+           yum服务器：（1）将所有的rpm包放在yum的服务器上，通过文件共享来供外部访问（ftp：URL）
+                      （2）提供了一个存储元数据的文件，存了什么程序包、程序包之间的依赖关系
+           yum客户端：通过URL来找远程的yum服务器的主机，找的过程是，先让yum服务器将文件发过来，并存储在
+                      本地的cache上，然后查询要安装的程序包和依赖的程序包，并找到需要安装的（将安装过的过滤），然后西在rpm包，缓存在本地，然后去安装，然后返回告诉客户端成功，并删除已经安装的程序包。一般元数据是不会被删除的，可以重复使用。
+
+                      问题：因为yum服务器有可能是会对自己的rpm进行更新的，所以每次进行请求的时候都要对元数据进行请求下载，会浪费带宽？
+                             对这个文本文件做一个校验码，然后每次请求的时候对校验码进行比较，然后如果发生了变化的时候，对元数据文件进行更新。
+                      问题：如果远程的yum的服务器连不上的话？但是本地的cache怎么办？
+                             需要配置策略
+
+
+         yum支持：ftp  http
+         yum repository：存储了众多的rpm包，存储在特定的目录下（repodata）
+
+         文件服务器：
+               ftp://
+               http://
+               nfs://
+               file://
+
+
+               yum客户端：
+                        /etc/yum.conf：提供公共配置
+                        /etc/yum.repos.d/*.repo：为每一个仓库提供特有的配置
+
+               仓库的定义：
+                [repositoryid]
+                name=repository_name
+                baseurl=url://path/to/repository
+                        url://path/to/repository
+                        url://path/to/repository
+                #是否是启动此仓库
+                enabled={1|0}
+                #对此仓库的所有的程序包检查完整性和来源可靠性
+                gpgcheck={1|0}
+                repo_gpgcheck{1|0}
+                gpgkey=URL
+                enablegroups={1|0}
+                failmethod={'roundrobin'|'priority'}
+                       roundrobin：随机
+                       priority  ：自上而下
+                keepalive：保持连接
+                bandwidth：指明带宽
+                username
+                passwd
+                cost 1000 （表示的是开销，默认为1000）
+
