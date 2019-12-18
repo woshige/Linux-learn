@@ -1,0 +1,47 @@
+Linux程序包管理
+     API:Application Programming Interface
+
+
+  程序源代码  -->  预处理  -->  编译  --> 汇编代码 -->  链接  -->  可执行的二进制文件
+         静态编译：
+             将依赖的库放进程序中
+         共享编译：
+         直接调用操作系统的库文件  .so
+             Linux可执行文件：ELF
+             Windows可执行文件：.exe
+         ABI ：Application Binary  Interface
+         库级别的虚拟化：
+             其实Linux上也可以执行Windows的程序包（WINE），Windows上也可以执行Linux上的程序（Cywin）
+  二进制程序的组成部分：
+            二进制文件：
+            库文件：
+            配置文件：
+            doc：
+         程序包管理器：
+              debain：deb,dpt
+              redhat：rpm   Redhat Package Manager
+                            RPM is Package Manager
+              Gentoo：
+              ArchLinux：
+         源代码命名：name-Version.tar.gz
+              VERSION：major.minor.release  release是源程序的号
+         rpm包的命名方式：
+              name-VERSION-ARCH.rpm
+                   VERSION：major.minor.release
+                   ARCH：release.os.arch
+                         release：是rpm包的release号 
+                         arch：86
+                         os:
+                         bash-4.2.1-1.centos.i386.rpm
+                         tomcat-servlet-3.0-api-7.0.54-2.el7_1.noarch.rpm
+              testapp：
+                     拆包：
+                     testapp-VERSION-ARCH.rpm   主干部分
+                     testapp-devel-VERSION-ARCH.rpm  支包
+              包之间的依赖关系：
+                      X,Y,Z
+
+                      yum：包管理的前端工具
+                           将包之间的依赖的关系放在元数据文件中，可以用来查找包之间的依赖的关系，自动的根据
+                           依赖关系通过库来进行安装并将源文件删除。
+                      apt-get：deb包的管理工具
