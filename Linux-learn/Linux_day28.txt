@@ -45,3 +45,135 @@ Linux程序包管理
                            将包之间的依赖的关系放在元数据文件中，可以用来查找包之间的依赖的关系，自动的根据
                            依赖关系通过库来进行安装并将源文件删除。
                       apt-get：deb包的管理工具
+                      zyyper：suse上的rpm包的前端的管理工具
+                      dnf：Federa  22+ rpm管理器前端管理工具
+
+                 ldd：查看二进制文件所依赖的库文件
+                       ldd /PATH/TO/BINARY_FILE
+                 ldconfig：管理并查看本机已经缓存的库文件
+                          /sbin/ldconfig -p  显示本机已经缓存的所有的可用的库文件和文件路径的映射关系
+
+                          配置文件为： /etc/ldconfig.so.conf /etc/ldcofig.so.d/*.conf
+                          缓存文件为： /etc/ldconfig.so.cache
+
+
+              程序包管理器：
+                      可以实现将一个应用程序的各组织文件（库文件、二进制文件、帮助文件等）来打包成为一个或多个而程序包，从而可以方便的实现包的安装、卸载、更新、查看等。
+                        1、程序的组成文件
+                             文件清单
+                             安装卸载时的脚本
+                        2、数据库（公共的）
+                             程序包的版本名称
+                             程序包的依赖关系
+                             功能说明
+                             安装生成的个文件的路径以及校验码信息
+          安装程序包：
+               使用包管理器：
+                         rpm
+               前端工具：yum dnf
+
+               获取程序包的途径：
+                     （1）系统发行版的光盘或者是系统发行版的官方的服务器
+                           Centos镜像
+                     （2）项目官方
+                     （3）第三方组织
+                           Fedara EPEL
+                           搜索引擎
+                               pkgs.org
+                               rpmfind.net
+                               rpm.pbone.net
+                     （4）自己制作
+  安装：
+
+          rpm {-i|--install} [install-options] PACKAGE_FILE ...
+                       -v verbose
+                       -vv
+                       -h 以#号显示管理执行进度，每个#显示的是2%的进度
+                          rpm  -ivh PACKAGE_FILE ...
+
+                       install-options 
+                                 --test 测试安装
+                                 --nodeps 忽略安装的关系
+                                 --replacepkgs  替换原有的包  （配置文件的问题）
+                                 --ignoreos  
+
+
+                                 --nodigest  不检查包的完整性
+                                 --nosignature  不检查来源的合法性
+
+                                 --noscripts  安装程序包，但是不安装rpm包的运行脚本
+                                      %pre   安装前脚本
+                                      %post  安装后脚本
+                                      %preun 卸载前脚本
+                                      %postun 卸载后脚本
+                                 --oldpackage  降级 （旧版的程序包替换新的程序包）
+
+
+          rpm {-U|--upgrade} [install-options] PACKAGE_FILE ...
+          rpm {-F|--freshen} [install-options] PACKAGE_FILE ...
+
+             upgrade 如果有旧版的程序包，则升级，如果不存在，则执行安装
+             freshen 只是为了升级
+
+             rpm -Uvh PACKGE_FILE ...
+             rpm -Fvh PACKGE_FILE ...
+                                  --force  强行执行
+
+        注意：
+           （1）不要对内核进行升级操作，对新内核进行直接安装。
+           （2）如果源程序包的配置文件安装后曾被修改，升级的时候新版本的文件并不会直接覆盖老版本的
+            配置文件。
+           （3）
+        查询：
+             rpm {-q|--query} [select-options] [query-options]
+                   select-options  查询选项
+                       -a 所有已经安装
+                       -f 查看指定的文件有哪些程序包指定生成
+                       -g 查看指定包组中的程序包
+                       --whatprovides CAPABILITY 提供的功能
+                       --whatrequires CAPABILITY 查询指定的CAPABILITY被哪个包所依赖
+                       -p 对于未安装的程序进行查看
+                   query-options   挑选选项
+                       --changelog
+                       -c 查询程序包的配置文件
+                       --conflics  查看程序包的冲突
+                       -d docfile：帮助文档
+                       -i info 详细信息 
+                       -L 许可证
+                       -l 查看指定程序包安装后生成的所有的文件
+                       --scripts 显示程序包的脚本
+                       --triggers 显示触发器脚本
+                       -R：查询程序包所依赖的CAPABILITY
+                       --provides 列出程序包所提供的 CAPABILITY
+        卸载：
+             rpm {-e|--erase} [--allmatches] [--nodeps] [--noscripts]
+                [--notriggers] [--test] PACKAGE_NAME ...
+        校验：
+             rpm {-V|--verify} [select-options] [verify-options]
+             就是通过在安装时存储在rpm数据库中的数据和已安装的程序所有的文件进行比较
+                 rpm -V zsh
+
+                   S file Size differs
+                   M Mode differs (includes permissions and file type)
+                   5 digest (formerly MD5 sum) differs
+                   D Device major/minor number mismatch
+                   L readLink(2) path mismatch
+                   U User ownership differs
+                   G Group ownership differs
+                   T mTime differs
+                   P caPabilities differ
+
+
+          包来源合法性验证和完整性验证：
+                 完整性验证：非对称加密
+
+                  rpm --import file
+                  rpm -ivh --relacepkgs file
+                  rpm {--initdb|rebuilddb}
+                         initdb：如果实现不存在数据库，就进行初始化，如果是存在的话，就不执行任何的操作。
+                         rebuilddb：不论存在与否，都进行重建
+
+
+                  rpm -K .rpm 对程序包进行校验
+     
+  
