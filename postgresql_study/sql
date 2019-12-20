@@ -1,0 +1,27 @@
+1、创建表
+  CREATE TABLE score(
+  student_name  varchar(40),
+  chinese_score int,
+  math_score    int,
+  test_date     date
+  );
+
+  使用主键
+  CREATE TABLE student(
+  no int primary key ,
+  student_name varchar(40),
+  age int); 
+2、删除语句
+  DELETE FROM student WHERE no = 3;
+  DELETE FROM student;
+3、过滤条件
+  SELECT * FROM student where no = 3;
+4、排序
+  SELECT * from student ORDER BY age;
+  DESC为倒序
+5、进行表的备份
+  INSERT INTO student_bak select * from student;
+6、unio查询
+   union查询可以将查询出来的数据整合在一个结果集下。
+   SELECT * FROM student WHERE no = 1 UNION SELECT * FROM student_bak where no = 2;
+   如果结果集是相同的话，会合并成一条，如果不想覆盖的话，使用UNION ALL
